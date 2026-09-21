@@ -24,7 +24,8 @@
     "cy:open": "cypress open",
     "cy:run:headed": "cypress run --browser chrome --headed",
     "test:e2e": "start-server-and-test dev http://localhost:3000 cy:run",
-    "test:e2e:headed": "start-server-and-test dev http://localhost:3000 cy:run:headed"
+    "test:e2e:headed": "start-server-and-test dev http://localhost:3000 cy:run:headed",
+    "test:api": "newman run postman/conduitCollection.json -e postman/conduitEnvironment.json"
   },
   "devDependencies": {
     "@faker-js/faker": "^8.4.1",

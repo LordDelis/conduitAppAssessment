@@ -1,0 +1,4715 @@
+{
+  "info": {
+    "_postman_id": "98924767-445b-4bcd-87d0-83c7931e68a8",
+    "name": "CONDUIT REALWORLD APPLICATION",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "21443378",
+    "_collection_link": "https://go.postman.co/collection/21443378-98924767-445b-4bcd-87d0-83c7931e68a8?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "SMOKE TEST",
+      "item": [
+        {
+          "name": "Users",
+          "item": [
+            {
+              "name": "Register new user",
+              "event": [
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "// Generate unique identifiers\nconst number = Math.floor(Math.random() * 10000) + 1;\nconst username = \"new_user_\" + number;\nconst email = \"new_user_\" + number + \"@gmail.com\";\n\n// Set collection variables dynamically\npm.collectionVariables.set(\"newUsername\", username);\npm.collectionVariables.set(\"newEmail\", email);\n\nconsole.log(\"Registering new user: \" + username);"
+                    ]
+                  }
+                },
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "// 1. Validate HTTP Status Code\npm.test(\"Status code is 201 Created\", function () {\n    pm.response.to.have.status(201);\n});\n\nconst responseData = pm.response.json();\n\nif (responseData.user && responseData.user.username) {\n    const invalidUserName = responseData.user.username + \"-invalid\";\n    pm.collectionVariables.set(\"invalidUserName\", invalidUserName);\n    console.log(\"Generated Invalid Username: \" + invalidUserName);\n}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"user\": {\n    \"username\": \"{{newUsername}}\",\n    \"email\": \"{{newEmail}}\",\n    \"password\": \"Password123!\",\n    \"bio\": \"\",\n    \"image\": \"\"\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/users",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "users"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Login",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "// 1. Validate HTTP Status Code\npm.test(\"Status code is 200 OK\", function () {\n    pm.response.to.have.status(200);\n});\n\nconst responseData = pm.response.json();\n\nif (responseData.user && responseData.user.token) {\n    pm.collectionVariables.set(\"newUserToken\", responseData.user.token);\n}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"user\": {\n    \"email\": \"{{newEmail}}\",\n    \"password\": \"Password123!\"\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/users/login",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "users",
+                    "login"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "User",
+          "item": [
+            {
+              "name": "Get Current User",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 200\", function () {\n    pm.response.to.have.status(200);\n});"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{newUserToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/user",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "user"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Update current user profile",
+              "event": [
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "// Generate unique identifiers using timestamps\nconst number = Math.floor(Math.random() * 10000) + 1;\nconst bio = \"This is a test bio-\" + number;\nconst image = \"image-\" + number + \".png\";\n\n// Set collection variables dynamically\npm.collectionVariables.set(\"newUserBio\", bio);\npm.collectionVariables.set(\"newUserImage\", image);\n\nconsole.log(\"Profile updated!!\");"
+                    ]
+                  }
+                },
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 200 OK\", function () {\n    pm.response.to.have.status(200);\n});\n"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{newUserToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "PUT",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"user\": {\n    \"username\": \"{{newUsername}}\",\n    \"email\": \"{{newEmail}}\",\n    \"password\": \"Password123!\",\n    \"bio\": \"{{newUserBio}}\",\n    \"image\": \"{{newUserImage}}\"\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/user",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "user"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Tags",
+          "item": [
+            {
+              "name": "Get Tags",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 200 OK\", function () {\n    pm.response.to.have.status(200);\n});\n"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/tags",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "tags"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Profile",
+          "item": [
+            {
+              "name": "Get user profile",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 200 OK\", function () {\n    pm.response.to.have.status(200);\n});"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/profiles/:username",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "profiles",
+                    ":username"
+                  ],
+                  "variable": [
+                    {
+                      "key": "username",
+                      "value": "{{newUsername}}"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Follow",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 200 OK\", function () {\n    pm.response.to.have.status(200);\n});\n"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{newUserToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/profiles/:username/follow",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "profiles",
+                    ":username",
+                    "follow"
+                  ],
+                  "variable": [
+                    {
+                      "key": "username",
+                      "value": "{{newUsername}}"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Unfollow",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 200 OK\", function () {\n    pm.response.to.have.status(200);\n});\n"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{newUserToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "DELETE",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/profiles/:username/follow",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "profiles",
+                    ":username",
+                    "follow"
+                  ],
+                  "variable": [
+                    {
+                      "key": "username",
+                      "value": "{{newUsername}}"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Articles",
+          "item": [
+            {
+              "name": "Create Article",
+              "event": [
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "// Generate unique identifiers\nconst number = Math.floor(Math.random() * 10000) + 1;\nconst articleTitle = \"Automating article creation \" + number;\nconst articleDescription = \"Article description \" + number;\nconst articleBody = \"Article body \" + number;\n\npm.collectionVariables.set(\"title\", articleTitle);\npm.collectionVariables.set(\"description\", articleDescription);\npm.collectionVariables.set(\"body\", articleBody);\nconsole.log(\"Generated Article: \" + articleTitle);"
+                    ]
+                  }
+                },
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 201\", function () {\n    pm.response.to.have.status(201);\n});\n\nconst responseData = pm.response.json();\n\nif (responseData.article && responseData.article.slug) {\n    // 1. Save the slug and title of the created article to use in other tests\n    pm.collectionVariables.set(\"slug\", responseData.article.slug);\n    pm.collectionVariables.set(\"existingArticleTitle\", responseData.article.title);\n    console.log(\"Captured Slug: \" + responseData.article.slug);\n\n    // 2. Generate and save a dynamic invalid slug variable to be used in edge case test\n    const invalidSlug = responseData.article.slug + \"-invalid\";\n    pm.collectionVariables.set(\"invalidSlug\", invalidSlug);\n    console.log(\"Generated Invalid Slug: \" + invalidSlug);\n}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{newUserToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"article\": {\n    \"title\": \"{{title}}\",\n    \"description\": \"{{description}}\",\n    \"body\": \"{{body}}\",\n    \"tagList\": [\n        \"Automation\"\n        ]\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/articles",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "articles"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get All Articles",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 200\", function () {\n    pm.response.to.have.status(200);\n});"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/articles?author={{newUsername}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "articles"
+                  ],
+                  "query": [
+                    {
+                      "key": "author",
+                      "value": "{{newUsername}}"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "60",
+                      "disabled": true
+                    },
+                    {
+                      "key": "favorited",
+                      "value": "false",
+                      "disabled": true
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get feed",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 200\", function () {\n    pm.response.to.have.status(200);\n});"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{newUserToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/articles/feed",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "articles",
+                    "feed"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get single article by slug",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 200\", function () {\n    pm.response.to.have.status(200);\n});"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/articles/:slug",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "articles",
+                    ":slug"
+                  ],
+                  "variable": [
+                    {
+                      "key": "slug",
+                      "value": "{{slug}}"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Update article",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 200\", function () {\n    pm.response.to.have.status(200);\n});\n\nconst responseData = pm.response.json();\n\nif (responseData.article && responseData.article.slug) {\n    pm.collectionVariables.set(\"updatedTitleSlug\", responseData.article.slug);\n}"
+                    ]
+                  }
+                },
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "const number = Math.floor(Math.random() * 10000) + 1;\nconst updatedTitle = \"Updated Automating Article Creation \" + number;\n\npm.collectionVariables.set(\"updatedTitle\", updatedTitle);"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{newUserToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "PUT",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"article\": {\n    \"title\": \"{{updatedTitle}}\"\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/articles/:slug",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "articles",
+                    ":slug"
+                  ],
+                  "variable": [
+                    {
+                      "key": "slug",
+                      "value": "{{slug}}"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Delete article",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{json_web_token_0619}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "DELETE",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/articles/:slug",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "articles",
+                    ":slug"
+                  ],
+                  "variable": [
+                    {
+                      "key": "slug",
+                      "value": "updated-article-title"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Favourite",
+          "item": [
+            {
+              "name": "Favourite an article",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 200\", function () {\n    pm.response.to.have.status(200);\n});"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{newUserToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/articles/:slug/favorite",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "articles",
+                    ":slug",
+                    "favorite"
+                  ],
+                  "variable": [
+                    {
+                      "key": "slug",
+                      "value": "{{updatedTitleSlug}}"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Unfavourite an article",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 200\", function () {\n    pm.response.to.have.status(200);\n});"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{newUserToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "DELETE",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/articles/:slug/favorite",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "articles",
+                    ":slug",
+                    "favorite"
+                  ],
+                  "variable": [
+                    {
+                      "key": "slug",
+                      "value": "{{updatedTitleSlug}}"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Comment",
+          "item": [
+            {
+              "name": "Add comment to an article",
+              "event": [
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "// Generate unique identifiers\nconst number = Math.floor(Math.random() * 10000) + 1;\nconst comment = \"Automation comment \" + number;\npm.collectionVariables.set(\"newArticleComment\", comment);"
+                    ]
+                  }
+                },
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 201\", function () {\n    pm.response.to.have.status(201);\n});\n\nconst responseData = pm.response.json();\nif (responseData.comment && responseData.comment.id) {\n    pm.collectionVariables.set(\"articleCommentId\", responseData.comment.id);\n    console.log(\"Captured Comment ID: \" + responseData.comment.id);\n}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{newUserToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"comment\": {\n    \"body\": \"{{newArticleComment}}\"\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/articles/:slug/comments",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "articles",
+                    ":slug",
+                    "comments"
+                  ],
+                  "variable": [
+                    {
+                      "key": "slug",
+                      "value": "{{updatedTitleSlug}}"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get comments on article",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 200\", function () {\n    pm.response.to.have.status(200);\n});"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/articles/:slug/comments",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "articles",
+                    ":slug",
+                    "comments"
+                  ],
+                  "variable": [
+                    {
+                      "key": "slug",
+                      "value": "{{updatedTitleSlug}}"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Delete comment",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 200\", function () {\n    pm.response.to.have.status(200);\n});"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{newUserToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "DELETE",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/articles/:slug/comments/:commentId",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "articles",
+                    ":slug",
+                    "comments",
+                    ":commentId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "slug",
+                      "value": "{{updatedTitleSlug}}"
+                    },
+                    {
+                      "key": "commentId",
+                      "value": "{{articleCommentId}}"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "EDGECASE / NEGATIVE TEST",
+      "item": [
+        {
+          "name": "Authentication",
+          "item": [
+            {
+              "name": "Register with an empty email",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 400 or 422\", function () {\n    pm.expect(pm.response.code).to.be.oneOf([400, 422]);\n});\n"
+                    ]
+                  }
+                },
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "// Generate unique identifiers\nconst number = Math.floor(Math.random() * 10000) + 1;\nconst username = \"edgecase_user_\" + number;\n// const email = \"qa_user_\" + number + \"@gmail.com\";\n\n// Set collection variables dynamically\npm.collectionVariables.set(\"edgecaseUsername\", username);\n// pm.collectionVariables.set(\"dynamicEmail\", email);"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"user\": {\n    \"username\": \"{{edgecaseUsername}}\",\n    \"email\": \"\",\n    \"password\": \"Password123!\",\n    \"bio\": \"\",\n    \"image\": \"\"\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/users",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "users"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Register with an empty username",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 400 or 422\", function () {\n    pm.expect(pm.response.code).to.be.oneOf([400, 422]);\n});\n"
+                    ]
+                  }
+                },
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "// Generate unique identifiers\nconst number = Math.floor(Math.random() * 10000) + 1;\n// const username = \"edgecase_user_\" + number;\nconst email = \"edgecase_user_\" + number + \"@gmail.com\";\n\n// Set collection variables dynamically\n// pm.collectionVariables.set(\"edgecaseUsername\", username);\npm.collectionVariables.set(\"edgecaseEmail\", email);"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"user\": {\n    \"username\": \"\",\n    \"email\": \"{{edgecaseEmail}}\",\n    \"password\": \"Password123!\",\n    \"bio\": \"\",\n    \"image\": \"\"\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/users",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "users"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Register with invalid email format",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 400 or 422\", function () {\n    pm.expect(pm.response.code).to.be.oneOf([400, 422]);\n});"
+                    ]
+                  }
+                },
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "// Generate unique identifiers\nconst number = Math.floor(Math.random() * 10000) + 1;\nconst username = \"edgecase_user_\" + number;\nconst email = \"invalidEdgecase_user_\" + number;\n\n// Set collection variables dynamically\npm.collectionVariables.set(\"edgecaseUsername\", username);\npm.collectionVariables.set(\"InvalidEdgecaseEmail\", email);"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"user\": {\n    \"username\": \"{{edgecaseUsername}}\",\n    \"email\": \"{{InvalidEdgecaseEmail}}\",\n    \"password\": \"Password123!\",\n    \"bio\": \"\",\n    \"image\": \"\"\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/users",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "users"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Register with existing email",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 400 or 422\", function () {\n    pm.expect(pm.response.code).to.be.oneOf([400, 422]);\n});\n"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"user\": {\n    \"username\": \"TestUser\",\n    \"email\": \"{{existingEmail}}\",\n    \"password\": \"Password123!\",\n    \"bio\": \"\",\n    \"image\": \"\"\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/users",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "users"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Register with empty password",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 400 or 422\", function () {\n    pm.expect(pm.response.code).to.be.oneOf([400, 422]);\n});\n"
+                    ]
+                  }
+                },
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "// Generate unique identifiers\nconst number = Math.floor(Math.random() * 10000) + 1;\nconst username = \"edgecase_user_\" + number;\nconst email = \"edgecase_user_\" + number + \"@gmail.com\";\n\n// Set collection variables dynamically\npm.collectionVariables.set(\"edgecaseUsername\", username);\npm.collectionVariables.set(\"edgecaseEmail\", email);"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"user\": {\n    \"username\": \"{{edgecaseUsername}}\",\n    \"email\": \"{{edgecaseEmail}}\",\n    \"password\": \"\",\n    \"bio\": \"\",\n    \"image\": \"\"\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/users",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "users"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Login with wrong password",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 400 or 422\", function () {\n    pm.expect(pm.response.code).to.be.oneOf([400, 422]);\n});\n"
+                    ]
+                  }
+                },
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      ""
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"user\": {\n    \"email\": \"{{existingEmail}}\",\n    \"password\": \"password123!\"\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/users/login",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "users",
+                    "login"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get user without token",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 401\", function () {\n    pm.response.to.have.status(401);\n});"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/user",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "user"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Articles",
+          "item": [
+            {
+              "name": "Create Article without title",
+              "event": [
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "// Generate unique identifiers\nconst number = Math.floor(Math.random() * 10000) + 1;\nconst articleTitle = \"Automating article creation \" + number;\nconst articleDescription = \"Article description \" + number;\nconst articleBody = \"Article body \" + number;\n\npm.collectionVariables.set(\"title\", articleTitle);\npm.collectionVariables.set(\"description\", articleDescription);\npm.collectionVariables.set(\"body\", articleBody);\nconsole.log(\"Generated Article: \" + articleTitle);"
+                    ]
+                  }
+                },
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 400 or 422\", function () {\n    pm.expect(pm.response.code).to.be.oneOf([400, 422]);\n});\n"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{newUserToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"article\": {\n    \"title\": \"\",\n    \"description\": \"{{description}}\",\n    \"body\": \"{{body}}\",\n    \"tagList\": [\n        \"Automation\"\n        ]\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/articles",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "articles"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Create Article without token",
+              "event": [
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "// Generate unique identifiers\nconst number = Math.floor(Math.random() * 10000) + 1;\nconst articleTitle = \"Automating article creation \" + number;\nconst articleDescription = \"Article description \" + number;\nconst articleBody = \"Article body \" + number;\n\npm.collectionVariables.set(\"title\", articleTitle);\npm.collectionVariables.set(\"description\", articleDescription);\npm.collectionVariables.set(\"body\", articleBody);\nconsole.log(\"Generated Article: \" + articleTitle);"
+                    ]
+                  }
+                },
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 401\", function () {\n    pm.response.to.have.status(401);\n});"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"article\": {\n    \"title\": \"{{title}}\",\n    \"description\": \"{{description}}\",\n    \"body\": \"{{body}}\",\n    \"tagList\": [\n        \"Automation\"\n        ]\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/articles",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "articles"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Create Article with existing title",
+              "event": [
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "// Generate unique identifiers\nconst number = Math.floor(Math.random() * 10000) + 1;\nconst articleTitle = \"Automating article creation \" + number;\nconst articleDescription = \"Article description \" + number;\nconst articleBody = \"Article body \" + number;\n\npm.collectionVariables.set(\"title\", articleTitle);\npm.collectionVariables.set(\"description\", articleDescription);\npm.collectionVariables.set(\"body\", articleBody);\nconsole.log(\"Generated Article: \" + articleTitle);"
+                    ]
+                  }
+                },
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 400 or 422\", function () {\n    pm.expect(pm.response.code).to.be.oneOf([400, 422]);\n});\n"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{newUserToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"article\": {\n    \"title\": \"{{existingArticleTitle}}\",\n    \"description\": \"{{description}}\",\n    \"body\": \"{{body}}\",\n    \"tagList\": [\n        \"Automation\"\n        ]\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/articles",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "articles"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get Article with non-existing slug",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 404\", function () {\n    pm.response.to.have.status(404);\n});"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/articles/:slug",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "articles",
+                    ":slug"
+                  ],
+                  "query": [
+                    {
+                      "key": "author",
+                      "value": "exampleUser5",
+                      "disabled": true
+                    },
+                    {
+                      "key": "limit",
+                      "value": "20",
+                      "disabled": true
+                    },
+                    {
+                      "key": "favorited",
+                      "value": "false",
+                      "disabled": true
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "key": "slug",
+                      "value": "{{invalidSlug}}"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Update another author's article",
+              "event": [
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "const number = Math.floor(Math.random() * 10000) + 1;\nconst updatedTitle = \"Updated API Automation Best Practices \" + number;\n\npm.collectionVariables.set(\"newTitle\", updatedTitle);"
+                    ]
+                  }
+                },
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 403\", function () {\n    pm.response.to.have.status(403);\n});"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{readerToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "PUT",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"article\": {\n    \"title\": \"{{newTitle}}\"\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/articles/:slug",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "articles",
+                    ":slug"
+                  ],
+                  "query": [
+                    {
+                      "key": "author",
+                      "value": "exampleUser5",
+                      "disabled": true
+                    },
+                    {
+                      "key": "limit",
+                      "value": "20",
+                      "disabled": true
+                    },
+                    {
+                      "key": "favorited",
+                      "value": "false",
+                      "disabled": true
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "key": "slug",
+                      "value": "{{slug}}"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Update article without token",
+              "event": [
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "const number = Math.floor(Math.random() * 10000) + 1;\nconst updatedTitle = \"Updated API Automation Best Practices \" + number;\n\npm.collectionVariables.set(\"newTitle\", updatedTitle);"
+                    ]
+                  }
+                },
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 401\", function () {\n    pm.response.to.have.status(401);\n});"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "PUT",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"article\": {\n    \"title\": \"{{newTitle}}\"\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/articles/:slug",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "articles",
+                    ":slug"
+                  ],
+                  "query": [
+                    {
+                      "key": "author",
+                      "value": "exampleUser5",
+                      "disabled": true
+                    },
+                    {
+                      "key": "limit",
+                      "value": "20",
+                      "disabled": true
+                    },
+                    {
+                      "key": "favorited",
+                      "value": "false",
+                      "disabled": true
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "key": "slug",
+                      "value": "{{slug}}"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Update non-existing article",
+              "event": [
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "const number = Math.floor(Math.random() * 10000) + 1;\nconst updatedTitle = \"Updated API Automation Best Practices \" + number;\n\npm.collectionVariables.set(\"newTitle\", updatedTitle);"
+                    ]
+                  }
+                },
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 404\", function () {\n    pm.response.to.have.status(404);\n});"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{newUserToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "PUT",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"article\": {\n    \"title\": \"{{newTitle}}\"\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/articles/:slug",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "articles",
+                    ":slug"
+                  ],
+                  "query": [
+                    {
+                      "key": "author",
+                      "value": "exampleUser5",
+                      "disabled": true
+                    },
+                    {
+                      "key": "limit",
+                      "value": "20",
+                      "disabled": true
+                    },
+                    {
+                      "key": "favorited",
+                      "value": "false",
+                      "disabled": true
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "key": "slug",
+                      "value": "{{invalidSlug}}"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Delete another author's article",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 403\", function () {\n    pm.response.to.have.status(403);\n});"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{readerToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "DELETE",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/articles/:slug",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "articles",
+                    ":slug"
+                  ],
+                  "variable": [
+                    {
+                      "key": "slug",
+                      "value": "{{slug}}"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Delete article without auth",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 401\", function () {\n    pm.response.to.have.status(401);\n});"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "DELETE",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/articles/:slug",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "articles",
+                    ":slug"
+                  ],
+                  "variable": [
+                    {
+                      "key": "slug",
+                      "value": "{{slug}}"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Delete non-existing article",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 404\", function () {\n    pm.response.to.have.status(404);\n});"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{newUserToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "DELETE",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/articles/:slug",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "articles",
+                    ":slug"
+                  ],
+                  "variable": [
+                    {
+                      "key": "slug",
+                      "value": "{{invalidSlug}}"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Favourite",
+          "item": [
+            {
+              "name": "Favourite a non-existent article",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 404\", function () {\n    pm.response.to.have.status(404);\n});"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{newUserToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/articles/:slug/favorite",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "articles",
+                    ":slug",
+                    "favorite"
+                  ],
+                  "variable": [
+                    {
+                      "key": "slug",
+                      "value": "{{invalidSlug}}"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Favourite an article without auth",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 401\", function () {\n    pm.response.to.have.status(401);\n});"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/articles/:slug/favorite",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "articles",
+                    ":slug",
+                    "favorite"
+                  ],
+                  "variable": [
+                    {
+                      "key": "slug",
+                      "value": "{{invalidSlug}}"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Favourite an article multiple times",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "let currentCount = parseInt(pm.collectionVariables.get(\"loopCounter\"));\nconst maxExecutions = 5;\n\nconsole.log(`Execution ${currentCount} of ${maxExecutions}`);\n\nif (currentCount < maxExecutions) {\n    // Increment the counter\n    pm.collectionVariables.set(\"loopCounter\", currentCount + 1);\n    \n    // Tell Postman to execute this same request again\n    pm.execution.setNextRequest(pm.info.requestId);\n} else {\n    // Clean up variable after 5 iterations\n    pm.collectionVariables.unset(\"loopCounter\");\n    console.log(\"Completed 5 executions.\");\n}\n\n// 1. Check if the status code is 200\npm.test(\"Status code is 200\", function () {\n    pm.response.to.have.status(200);\n});\n\n// 2. Validate that multiple favorite clicks do not artificially inflate the count\npm.test(\"Favorites count remains stable on duplicate favorite actions\", function () {\n    const responseData = pm.response.json();\n    \n    const actualCount = responseData.article.favoritesCount;\n    const expectedBaseline = pm.collectionVariables.set(\"baselineFavoritesCount\", actualCount);\n    \n    if (expectedBaseline !== undefined && expectedBaseline !== null) {\n        pm.expect(actualCount).to.equal(expectedBaseline);\n    }\n});\n"
+                    ]
+                  }
+                },
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "// Initialize counter to 1 if it doesn't exist yet\nif (!pm.collectionVariables.get(\"loopCounter\")) {\n    pm.collectionVariables.set(\"loopCounter\", 1);\n}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{newUserToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/articles/:slug/favorite",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "articles",
+                    ":slug",
+                    "favorite"
+                  ],
+                  "variable": [
+                    {
+                      "key": "slug",
+                      "value": "{{slug}}"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Unfavourite a non-existent article",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 404\", function () {\n    pm.response.to.have.status(404);\n});"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{newUserToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "DELETE",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/articles/:slug/favorite",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "articles",
+                    ":slug",
+                    "favorite"
+                  ],
+                  "variable": [
+                    {
+                      "key": "slug",
+                      "value": "{{invalidSlug}}"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Unfavourite an article without auth",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 401\", function () {\n    pm.response.to.have.status(401);\n});"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "DELETE",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/articles/:slug/favorite",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "articles",
+                    ":slug",
+                    "favorite"
+                  ],
+                  "variable": [
+                    {
+                      "key": "slug",
+                      "value": "{{invalidSlug}}"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Comments",
+          "item": [
+            {
+              "name": "Add comment without auth",
+              "event": [
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "// Generate unique identifiers\nconst number = Math.floor(Math.random() * 10000) + 1;\nconst comment = \"Edge Case Automation comment \" + number;\npm.collectionVariables.set(\"edgeCaseComment\", comment);"
+                    ]
+                  }
+                },
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 401\", function () {\n    pm.response.to.have.status(401);\n});"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"comment\": {\n    \"body\": \"{{edgeCaseComment}}\"\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/articles/:slug/comments",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "articles",
+                    ":slug",
+                    "comments"
+                  ],
+                  "variable": [
+                    {
+                      "key": "slug",
+                      "value": "{{updatedTitleSlug}}"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Add comment with empty body",
+              "event": [
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "// Generate unique identifiers\nconst number = Math.floor(Math.random() * 10000) + 1;\nconst comment = \"Edge Case Automation comment \" + number;\npm.collectionVariables.set(\"edgeCaseComment\", comment);"
+                    ]
+                  }
+                },
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 400 or 422\", function () {\n    pm.expect(pm.response.code).to.be.oneOf([400, 422]);\n});"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{newUserToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"comment\": {\n    \"body\": \"\"\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/articles/:slug/comments",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "articles",
+                    ":slug",
+                    "comments"
+                  ],
+                  "variable": [
+                    {
+                      "key": "slug",
+                      "value": "{{updatedTitleSlug}}"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Add comment to non-existent article",
+              "event": [
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "// Generate unique identifiers\nconst number = Math.floor(Math.random() * 10000) + 1;\nconst comment = \"Edge Case Automation comment \" + number;\npm.collectionVariables.set(\"edgeCaseComment\", comment);"
+                    ]
+                  }
+                },
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 404\", function () {\n    pm.response.to.have.status(404);\n});"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{newUserToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"comment\": {\n    \"body\": \"{{edgeCaseComment}}\"\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/articles/:slug/comments",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "articles",
+                    ":slug",
+                    "comments"
+                  ],
+                  "variable": [
+                    {
+                      "key": "slug",
+                      "value": "{{invalidSlug}}"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Delete someone else's comment",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 403\", function () {\n    pm.response.to.have.status(403);\n});"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{readerToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "DELETE",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/articles/:slug/comments/:commentId",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "articles",
+                    ":slug",
+                    "comments",
+                    ":commentId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "slug",
+                      "value": "{{updatedTitleSlug}}"
+                    },
+                    {
+                      "key": "commentId",
+                      "value": "{{articleCommentId}}"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Profile follow",
+          "item": [
+            {
+              "name": "Follow yourself",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 400 or 422\", function () {\n    pm.expect(pm.response.code).to.be.oneOf([400, 422]);\n});\n"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{newUserToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/profiles/:username/follow",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "profiles",
+                    ":username",
+                    "follow"
+                  ],
+                  "variable": [
+                    {
+                      "key": "username",
+                      "value": "{{newUsername}}"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Follow non-existent username",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 404\", function () {\n    pm.response.to.have.status(404);\n});"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{newUserToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/profiles/:username/follow",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "profiles",
+                    ":username",
+                    "follow"
+                  ],
+                  "variable": [
+                    {
+                      "key": "username",
+                      "value": "{{invalidUserName}}"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Follow same user twice",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "let currentCount = parseInt(pm.collectionVariables.get(\"loopCounter\"));\nconst maxExecutions = 5;\n\nconsole.log(`Execution ${currentCount} of ${maxExecutions}`);\n\nif (currentCount < maxExecutions) {\n    // Increment the counter\n    pm.collectionVariables.set(\"loopCounter\", currentCount + 1);\n    \n    // Tell Postman to execute this same request again\n    pm.execution.setNextRequest(pm.info.requestId);\n} else {\n    // Clean up variable after 5 iterations\n    pm.collectionVariables.unset(\"loopCounter\");\n    console.log(\"Completed 5 executions.\");\n}\n\n// 1. Check if the status code is 200\npm.test(\"Status code is 200\", function () {\n    pm.response.to.have.status(200);\n});\n\n// 2. Validate that multiple favorite clicks do not artificially inflate the count\npm.test(\"Followers count remains stable on duplicate follow actions\", function () {\n    const responseData = pm.response.json();\n    \n    const actualFollowCount = responseData.profile.followersCount;\n    const expectedFollowCount = pm.collectionVariables.set(\"baselineFollowCount\", actualFollowCount);\n    \n    if (expectedFollowCount !== undefined && expectedFollowCount !== null) {\n        pm.expect(actualFollowCount).to.equal(expectedFollowCount);\n    }\n});"
+                    ]
+                  }
+                },
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "// Initialize counter to 1 if it doesn't exist yet\nif (!pm.collectionVariables.get(\"loopCounter\")) {\n    pm.collectionVariables.set(\"loopCounter\", 1);\n}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{newUserToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/profiles/:username/follow",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "profiles",
+                    ":username",
+                    "follow"
+                  ],
+                  "variable": [
+                    {
+                      "key": "username",
+                      "value": "{{authorUsername}}"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Unfollow non-existent username",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 404\", function () {\n    pm.response.to.have.status(404);\n});"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{newUserToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/profiles/:username/follow",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "profiles",
+                    ":username",
+                    "follow"
+                  ],
+                  "variable": [
+                    {
+                      "key": "username",
+                      "value": "{{invalidUserName}}"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "INTEGRATION, FUNCTIONAL & REGRESSION TEST",
+      "item": [
+        {
+          "name": "Registration & Profile Workflow",
+          "item": [
+            {
+              "name": "Register new user",
+              "event": [
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "// Generate unique identifiers\nconst number = Math.floor(Math.random() * 10000) + 1;\nconst username = \"qa_user_\" + number;\nconst email = \"qa_user_\" + number + \"@gmail.com\";\n\n// Set collection variables dynamically\npm.collectionVariables.set(\"dynamicUsername\", username);\npm.collectionVariables.set(\"dynamicEmail\", email);\n\nconsole.log(\"Registering test user: \" + username);"
+                    ]
+                  }
+                },
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "// 1. Validate HTTP Status Code\npm.test(\"Status code is 201 Created\", function () {\n    pm.response.to.have.status(201);\n});\n\n// 2. Parse response and extract JWT\nconst responseData = pm.response.json();\n\npm.test(\"Response contains user object and token\", function () {\n    pm.expect(responseData).to.have.property(\"user\");\n    pm.expect(responseData.user).to.have.property(\"token\");\n    pm.expect(responseData.user.username).to.eql(pm.collectionVariables.get(\"dynamicUsername\"));\n});"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"user\": {\n    \"username\": \"{{dynamicUsername}}\",\n    \"email\": \"{{dynamicEmail}}\",\n    \"password\": \"Password123!\",\n    \"bio\": \"\",\n    \"image\": \"\"\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/users",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "users"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Login",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "// 1. Validate HTTP Status Code\npm.test(\"Status code is 200 Created\", function () {\n    pm.response.to.have.status(200);\n});\n\n// 2. Parse response\nconst responseData = pm.response.json();\n\npm.test(\"Response contains user object and token\", function () {\n    pm.expect(responseData).to.have.property(\"user\");\n    pm.expect(responseData.user).to.have.property(\"token\");\n});\n\npm.test(\"Authenticated user details match registration\", function () {\n    const expectedEmail = pm.collectionVariables.get(\"dynamicEmail\");\n    const expectedUsername = pm.collectionVariables.get(\"dynamicUsername\");\n\n    pm.expect(responseData.user.email).to.eql(expectedEmail);\n    pm.expect(responseData.user.username).to.eql(expectedUsername);\n});\n\n// 3. Store JWT into collection variable for downstream requests\nif (responseData.user && responseData.user.token) {\n    pm.collectionVariables.set(\"userToken\", responseData.user.token);\n    console.log(\"Auth Token successfully stored.\");\n}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"user\": {\n    \"email\": \"{{dynamicEmail}}\",\n    \"password\": \"Password123!\"\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/users/login",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "users",
+                    "login"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get Current User",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 200 OK\", function () {\n    pm.response.to.have.status(200);\n});\n\npm.test(\"Authenticated user details match registration\", function () {\n    const responseData = pm.response.json();\n    const expectedEmail = pm.collectionVariables.get(\"dynamicEmail\");\n    const expectedUsername = pm.collectionVariables.get(\"dynamicUsername\");\n\n    pm.expect(responseData.user.email).to.eql(expectedEmail);\n    pm.expect(responseData.user.username).to.eql(expectedUsername);\n});"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{userToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/user",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "user"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Update User Profile",
+              "event": [
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "// Generate unique identifiers using timestamps\nconst number = Math.floor(Math.random() * 10000) + 1;\nconst bio = \"This is a test bio-\" + number;\nconst image = \"image-\" + number + \".png\";\n\n// Set collection variables dynamically\npm.collectionVariables.set(\"dynamicBio\", bio);\npm.collectionVariables.set(\"dynamicImage\", image);\n\nconsole.log(\"Profile updated!!\");"
+                    ]
+                  }
+                },
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 200 OK\", function () {\n    pm.response.to.have.status(200);\n});\n\npm.test(\"Updated user details match information submitted\", function () {\n    const responseData = pm.response.json();\n    const expectedBio = pm.collectionVariables.get(\"dynamicBio\");\n    const expectedImage = pm.collectionVariables.get(\"dynamicImage\");\n\n    pm.expect(responseData.user.bio).to.eql(expectedBio);\n    pm.expect(responseData.user.image).to.eql(expectedImage);\n});"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{userToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "PUT",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"user\": {\n    \"username\": \"{{dynamicUsername}}\",\n    \"email\": \"{{dynamicEmail}}\",\n    \"password\": \"Password123!\",\n    \"bio\": \"{{dynamicBio}}\",\n    \"image\": \"{{dynamicImage}}\"\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/user",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "user"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get Public Profile",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 200 OK\", function () {\n    pm.response.to.have.status(200);\n});\n\npm.test(\"Public profile contains updated bio and image\", function () {\n    const responseData = pm.response.json();\n    pm.expect(responseData.profile.username).to.eql(pm.collectionVariables.get(\"dynamicUsername\"));\n    pm.expect(responseData.profile.bio).to.eql(pm.collectionVariables.get(\"dynamicBio\"));\n    pm.expect(responseData.profile.image).to.eql(pm.collectionVariables.get(\"dynamicImage\"));\n});"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/profiles/:username",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "profiles",
+                    ":username"
+                  ],
+                  "variable": [
+                    {
+                      "key": "username",
+                      "value": "{{dynamicUsername}}"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Article Publishing Workflow",
+          "item": [
+            {
+              "name": "Create Article",
+              "event": [
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "// Generate unique identifiers\nconst number = Math.floor(Math.random() * 10000) + 1;\nconst articleTitle = \"API Automation Best Practices \" + number;\nconst articleDescription = \"Article description \" + number;\nconst articleBody = \"Article body \" + number;\n\npm.collectionVariables.set(\"initialTitle\", articleTitle);\npm.collectionVariables.set(\"initialDescription\", articleDescription);\npm.collectionVariables.set(\"initialBody\", articleBody);\nconsole.log(\"Generated Article: \" + articleTitle);"
+                    ]
+                  }
+                },
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 201\", function () {\n    pm.response.to.have.status(201);\n});\n\nconst responseData = pm.response.json();\n\npm.test(\"Article created with correct attributes\", function () {\n    pm.expect(responseData.article).to.have.property(\"slug\");\n    pm.expect(responseData.article).to.have.property(\"title\");\n    pm.expect(responseData.article).to.have.property(\"description\");\n    pm.expect(responseData.article).to.have.property(\"body\");\n});\n\npm.test(\"Article has correct information\", function () {\n    pm.expect(responseData.article.title).to.eql(pm.collectionVariables.get(\"initialTitle\"));\n    pm.expect(responseData.article.description).to.eql(pm.collectionVariables.get(\"initialDescription\"));\n    pm.expect(responseData.article.body).to.eql(pm.collectionVariables.get(\"initialBody\"));\n    pm.expect(responseData.article.tagList).to.include(\"Automation\");\n});\n\n// Capture generated slug for chaining\nif (responseData.article && responseData.article.slug) {\n    pm.collectionVariables.set(\"articleSlug\", responseData.article.slug);\n    console.log(\"Captured Slug: \" + responseData.article.slug);\n}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{userToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"article\": {\n    \"title\": \"{{initialTitle}}\",\n    \"description\": \"{{initialDescription}}\",\n    \"body\": \"{{initialBody}}\",\n    \"tagList\": [\n        \"Automation\",\n        \"Testing\"\n        ]\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/articles",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "articles"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get Article by Slug",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 200 OK\", function () {\n    pm.response.to.have.status(200);\n});\n\npm.test(\"Retrieved article matches created article\", function () {\n    const responseData = pm.response.json();\n    pm.expect(responseData.article.slug).to.eql(pm.collectionVariables.get(\"articleSlug\"));\n    pm.expect(responseData.article.title).to.eql(pm.collectionVariables.get(\"initialTitle\"));\n});"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/articles/:slug",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "articles",
+                    ":slug"
+                  ],
+                  "query": [
+                    {
+                      "key": "author",
+                      "value": "exampleUser5",
+                      "disabled": true
+                    },
+                    {
+                      "key": "limit",
+                      "value": "20",
+                      "disabled": true
+                    },
+                    {
+                      "key": "favorited",
+                      "value": "false",
+                      "disabled": true
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "key": "slug",
+                      "value": "{{articleSlug}}"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Update Article Title",
+              "event": [
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "const number = Math.floor(Math.random() * 10000) + 1;\nconst updatedTitle = \"Updated API Automation Best Practices \" + number;\n\npm.collectionVariables.set(\"newTitle\", updatedTitle);"
+                    ]
+                  }
+                },
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 200 OK\", function () {\n    pm.response.to.have.status(200);\n});\n\nconst responseData = pm.response.json();\n\npm.test(\"Article title and slug updated successfully\", function () {\n    pm.expect(responseData.article.title).to.eql(pm.collectionVariables.get(\"newTitle\"));\n    pm.expect(responseData.article.slug).to.not.eql(pm.collectionVariables.get(\"articleSlug\"));\n});\n\n// Store new slug for subsequent checks\nif (responseData.article && responseData.article.slug) {\n    pm.collectionVariables.set(\"updatedSlug\", responseData.article.slug);\n    console.log(\"New Synced Slug: \" + responseData.article.slug);\n}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{userToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "PUT",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"article\": {\n    \"title\": \"{{newTitle}}\"\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/articles/:slug",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "articles",
+                    ":slug"
+                  ],
+                  "query": [
+                    {
+                      "key": "author",
+                      "value": "exampleUser5",
+                      "disabled": true
+                    },
+                    {
+                      "key": "limit",
+                      "value": "20",
+                      "disabled": true
+                    },
+                    {
+                      "key": "favorited",
+                      "value": "false",
+                      "disabled": true
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "key": "slug",
+                      "value": "{{articleSlug}}"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get Article by Old Slug (Negative)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Old slug returns 404 Not Found\", function () {\n    pm.response.to.have.status(404);\n});"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/articles/:slug",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "articles",
+                    ":slug"
+                  ],
+                  "query": [
+                    {
+                      "key": "author",
+                      "value": "exampleUser5",
+                      "disabled": true
+                    },
+                    {
+                      "key": "limit",
+                      "value": "20",
+                      "disabled": true
+                    },
+                    {
+                      "key": "favorited",
+                      "value": "false",
+                      "disabled": true
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "key": "slug",
+                      "value": "{{articleSlug}}"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get Article by New Slug",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 200 OK\", function () {\n    pm.response.to.have.status(200);\n});\n\npm.test(\"New slug retrieves updated article content\", function () {\n    const responseData = pm.response.json();\n    pm.expect(responseData.article.slug).to.eql(pm.collectionVariables.get(\"updatedSlug\"));\n    pm.expect(responseData.article.title).to.eql(pm.collectionVariables.get(\"newTitle\"));\n});"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/articles/:slug",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "articles",
+                    ":slug"
+                  ],
+                  "variable": [
+                    {
+                      "key": "slug",
+                      "value": "{{updatedSlug}}"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Delete Article",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 200\", function () {\n    pm.response.to.have.status(200);\n});"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{userToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "DELETE",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/articles/:slug",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "articles",
+                    ":slug"
+                  ],
+                  "variable": [
+                    {
+                      "key": "slug",
+                      "value": "{{updatedSlug}}"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Verify Article Deletion (Negative)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Deleted article returns 404 Not Found\", function () {\n    pm.response.to.have.status(404);\n});"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/articles/:slug",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "articles",
+                    ":slug"
+                  ],
+                  "variable": [
+                    {
+                      "key": "slug",
+                      "value": "{{updatedSlug}}"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Article Commenting Workflow",
+          "item": [
+            {
+              "name": "Create Article for Comments",
+              "event": [
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "// Generate unique identifiers\nconst number = Math.floor(Math.random() * 10000) + 1;\nconst articleTitle = \"API Automation Best Practices \" + number;\nconst articleDescription = \"Article description \" + number;\nconst articleBody = \"Article body \" + number;\n\npm.collectionVariables.set(\"initialTitle\", articleTitle);\npm.collectionVariables.set(\"initialDescription\", articleDescription);\npm.collectionVariables.set(\"initialBody\", articleBody);\nconsole.log(\"Generated Article: \" + articleTitle);"
+                    ]
+                  }
+                },
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 201\", function () {\n    pm.response.to.have.status(201);\n});\n\nconst responseData = pm.response.json();\n\npm.test(\"Article created with correct attributes\", function () {\n    pm.expect(responseData.article).to.have.property(\"slug\");\n    pm.expect(responseData.article).to.have.property(\"title\");\n    pm.expect(responseData.article).to.have.property(\"description\");\n    pm.expect(responseData.article).to.have.property(\"body\");\n});\n\npm.test(\"Article has correct information\", function () {\n    pm.expect(responseData.article.title).to.eql(pm.collectionVariables.get(\"initialTitle\"));\n    pm.expect(responseData.article.description).to.eql(pm.collectionVariables.get(\"initialDescription\"));\n    pm.expect(responseData.article.body).to.eql(pm.collectionVariables.get(\"initialBody\"));\n    pm.expect(responseData.article.tagList).to.include(\"Automation\");\n});\n\n// Capture generated slug for chaining\nif (responseData.article && responseData.article.slug) {\n    pm.collectionVariables.set(\"articleSlug\", responseData.article.slug);\n    console.log(\"Captured Slug: \" + responseData.article.slug);\n}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{userToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"article\": {\n    \"title\": \"{{initialTitle}}\",\n    \"description\": \"{{initialDescription}}\",\n    \"body\": \"{{initialBody}}\",\n    \"tagList\": [\n        \"Automation\",\n        \"Testing\"\n        ]\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/articles",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "articles"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Add Comment to Article",
+              "event": [
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "// Generate unique identifiers\nconst number = Math.floor(Math.random() * 10000) + 1;\nconst comment = \"Automation comment \" + number;\npm.collectionVariables.set(\"articleComment\", comment);"
+                    ]
+                  }
+                },
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 201\", function () {\n    pm.response.to.have.status(201);\n});\n\nconst responseData = pm.response.json();\n\npm.test(\"Comment created with valid ID and body\", function () {\n    pm.expect(responseData.comment).to.have.property(\"id\");\n    pm.expect(responseData.comment.body).to.eql(pm.collectionVariables.get(\"articleComment\"));\n    pm.expect(responseData.comment.author).to.have.property(\"username\");\n});\n\nif (responseData.comment && responseData.comment.id) {\n    pm.collectionVariables.set(\"commentId\", responseData.comment.id);\n    console.log(\"Captured Comment ID: \" + responseData.comment.id);\n}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{userToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"comment\": {\n    \"body\": \"{{articleComment}}\"\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/articles/:slug/comments",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "articles",
+                    ":slug",
+                    "comments"
+                  ],
+                  "variable": [
+                    {
+                      "key": "slug",
+                      "value": "{{articleSlug}}"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get Article Comments",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 200 OK\", function () {\n    pm.response.to.have.status(200);\n});\n\nconst responseData = pm.response.json();\n\npm.test(\"Comments list is non-empty and contains created comment ID\", function () {\n    pm.expect(responseData).to.have.property(\"comments\");\n    pm.expect(responseData.comments).to.be.an(\"array\").that.is.not.empty;\n\n    const targetId = pm.collectionVariables.get(\"commentId\");\n    const foundComment = responseData.comments.find(c => c.id === targetId);\n\n    pm.expect(foundComment).to.not.be.undefined;\n    pm.expect(foundComment.body).to.eql(pm.collectionVariables.get(\"articleComment\"));\n});"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "noauth"
+                },
+                "method": "GET",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/articles/:slug/comments",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "articles",
+                    ":slug",
+                    "comments"
+                  ],
+                  "variable": [
+                    {
+                      "key": "slug",
+                      "value": "{{articleSlug}}"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Delete comments",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 200\", function () {\n    pm.response.to.have.status(200);\n});"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{userToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "DELETE",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/articles/:slug/comments/:commentId",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "articles",
+                    ":slug",
+                    "comments",
+                    ":commentId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "slug",
+                      "value": "{{articleSlug}}"
+                    },
+                    {
+                      "key": "commentId",
+                      "value": "{{commentId}}"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Verify Comment Deleted",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 200 OK\", function () {\n    pm.response.to.have.status(200);\n});\n\nconst responseData = pm.response.json();\n\npm.test(\"Deleted comment ID is no longer present in comments array\", function () {\n    const deletedId = pm.collectionVariables.get(\"commentId\");\n    const foundComment = responseData.comments.find(c => c.id === deletedId);\n\n    pm.expect(foundComment).to.be.undefined;\n});"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "noauth"
+                },
+                "method": "GET",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/articles/:slug/comments",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "articles",
+                    ":slug",
+                    "comments"
+                  ],
+                  "variable": [
+                    {
+                      "key": "slug",
+                      "value": "{{articleSlug}}"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Cleanup Article",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Parent article deleted successfully\", function () {\n    pm.response.to.have.status(200);\n});"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{userToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "DELETE",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/articles/:slug",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "articles",
+                    ":slug"
+                  ],
+                  "variable": [
+                    {
+                      "key": "slug",
+                      "value": "{{articleSlug}}"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Social Follow & Personal Feed Workflow",
+          "item": [
+            {
+              "name": "Register Author",
+              "event": [
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "// Generate unique identifiers\nconst number = Math.floor(Math.random() * 10000) + 1;\nconst authorName = \"author_\" + number;\nconst authorEmail = \"author_\" + number + \"@gmail.com\";\n\n// Set collection variables dynamically\npm.collectionVariables.set(\"authorUsername\", authorName);\npm.collectionVariables.set(\"authorEmail\", authorEmail);\n\nconsole.log(\"Creating Author: \" + authorName);"
+                    ]
+                  }
+                },
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "// 1. Validate HTTP Status Code\npm.test(\"Status code is 201 Created\", function () {\n    pm.response.to.have.status(201);\n});\n\n// 2. Parse response and extract JWT\nconst responseData = pm.response.json();\n\nif (responseData.user && responseData.user.token) {\n    pm.collectionVariables.set(\"authorToken\", responseData.user.token);\n    console.log(\"Author Token Saved.\");\n}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"user\": {\n    \"username\": \"{{authorUsername}}\",\n    \"email\": \"{{authorEmail}}\",\n    \"password\": \"Password123!\",\n    \"bio\": \"\",\n    \"image\": \"\"\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/users",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "users"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Register Reader",
+              "event": [
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "// Generate unique identifiers\nconst number = Math.floor(Math.random() * 10000) + 1;\nconst readerName = \"reader\" + number;\nconst readerEmail = \"reader\" + number + \"@gmail.com\";\n\n// Set collection variables dynamically\npm.collectionVariables.set(\"readerUsername\", readerName);\npm.collectionVariables.set(\"readerEmail\", readerEmail);\n\nconsole.log(\"Creating Reader: \" + readerName);"
+                    ]
+                  }
+                },
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "// 1. Validate HTTP Status Code\npm.test(\"Status code is 201 Created\", function () {\n    pm.response.to.have.status(201);\n});\n\n// 2. Parse response and extract JWT\nconst responseData = pm.response.json();\n\nif (responseData.user && responseData.user.token) {\n    pm.collectionVariables.set(\"readerToken\", responseData.user.token);\n    console.log(\"Reader Token Saved.\");\n}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"user\": {\n    \"username\": \"{{readerUsername}}\",\n    \"email\": \"{{readerEmail}}\",\n    \"password\": \"Password123!\",\n    \"bio\": \"\",\n    \"image\": \"\"\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/users",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "users"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Author Publishes Article",
+              "event": [
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "// Generate unique identifiers\nconst number = Math.floor(Math.random() * 10000) + 1;\nconst feedArticleTitle = \"Feed article title \" + number;\nconst feedArticleDescription = \"Feed article description \" + number;\nconst feedArticleBody = \"Feed article body \" + number;\n\npm.collectionVariables.set(\"feedArticleTitle\", feedArticleTitle);\npm.collectionVariables.set(\"feedArticleDescription\", feedArticleDescription);\npm.collectionVariables.set(\"feedArticleBody\", feedArticleBody);\n\nconsole.log(\"Generated Article: \" + feedArticleTitle);"
+                    ]
+                  }
+                },
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 201\", function () {\n    pm.response.to.have.status(201);\n});\n\nconst responseData = pm.response.json();\n\nif (responseData.article && responseData.article.slug) {\n    pm.collectionVariables.set(\"feedArticleSlug\", responseData.article.slug);\n    console.log(\"Captured Slug: \" + responseData.article.slug);\n}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{authorToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"article\": {\n    \"title\": \"{{feedArticleTitle}}\",\n    \"description\": \"{{feedArticleDescription}}\",\n    \"body\": \"{{feedArticleBody}}\",\n    \"tagList\": [\n        \"Social\",\n        \"Feed\"\n        ]\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/articles",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "articles"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get Reader Feed (Before Follow)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 200 OK\", function () {\n    pm.response.to.have.status(200);\n});\n\nconst responseData = pm.response.json();\n\npm.test(\"Reader feed does NOT contain author's article before following\", function () {\n    pm.expect(responseData).to.have.property(\"articles\");\n    \n    const targetSlug = pm.collectionVariables.get(\"feedArticleSlug\");\n    const foundArticle = responseData.articles.find(a => a.slug === targetSlug);\n\n    pm.expect(foundArticle).to.be.undefined;\n});"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{readerToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/articles/feed",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "articles",
+                    "feed"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Reader Follows Author",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 200 OK\", function () {\n    pm.response.to.have.status(200);\n});\n\nconst responseData = pm.response.json();\n\npm.test(\"Profile following status updated to true\", function () {\n    pm.expect(responseData).to.have.property(\"profile\");\n    pm.expect(responseData.profile.username).to.eql(pm.collectionVariables.get(\"authorUsername\"));\n    pm.expect(responseData.profile.following).to.be.true;\n});"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{readerToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/profiles/:username/follow",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "profiles",
+                    ":username",
+                    "follow"
+                  ],
+                  "variable": [
+                    {
+                      "key": "username",
+                      "value": "{{authorUsername}}"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get Reader Feed (After Follow)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 200 OK\", function () {\n    pm.response.to.have.status(200);\n});\n\nconst responseData = pm.response.json();\n\npm.test(\"Reader feed contains author's article after following\", function () {\n    pm.expect(responseData).to.have.property(\"articles\");\n    \n    const targetSlug = pm.collectionVariables.get(\"feedArticleSlug\");\n    const foundArticle = responseData.articles.find(a => a.slug === targetSlug);\n\n    pm.expect(foundArticle).to.not.be.undefined;\n    pm.expect(foundArticle.author.username).to.eql(pm.collectionVariables.get(\"authorUsername\"));\n});"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{readerToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/articles/feed",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "articles",
+                    "feed"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Reader Unfollows Author",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 200 OK\", function () {\n    pm.response.to.have.status(200);\n});\n\nconst responseData = pm.response.json();\n\npm.test(\"Profile following status updated to false\", function () {\n    pm.expect(responseData.profile.following).to.be.false;\n});"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{readerToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "DELETE",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/profiles/:username/follow",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "profiles",
+                    ":username",
+                    "follow"
+                  ],
+                  "variable": [
+                    {
+                      "key": "username",
+                      "value": "{{authorUsername}}"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get Reader Feed (After Unfollow)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 200 OK\", function () {\n    pm.response.to.have.status(200);\n});\n\nconst responseData = pm.response.json();\n\npm.test(\"Reader feed does NOT contain author's article before following\", function () {\n    pm.expect(responseData).to.have.property(\"articles\");\n    \n    const targetSlug = pm.collectionVariables.get(\"feedArticleSlug\");\n    const foundArticle = responseData.articles.find(a => a.slug === targetSlug);\n\n    pm.expect(foundArticle).to.be.undefined;\n});"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{readerToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/articles/feed",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "articles",
+                    "feed"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Cleanup Author Article",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Parent article deleted successfully\", function () {\n    pm.response.to.have.status(200);\n});"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{authorToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "DELETE",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/articles/:slug",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "articles",
+                    ":slug"
+                  ],
+                  "variable": [
+                    {
+                      "key": "slug",
+                      "value": "{{feedArticleSlug}}"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Article Favoriting Workflow",
+          "item": [
+            {
+              "name": "Author Publishes Article",
+              "event": [
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "// Generate unique identifiers\nconst number = Math.floor(Math.random() * 10000) + 1;\nconst likedArticleTitle = \"Liked article title \" + number;\nconst likedArticleDescription = \"Liked article description \" + number;\nconst likedArticleBody = \"Liked article body \" + number;\n\npm.collectionVariables.set(\"likedArticleTitle\", likedArticleTitle);\npm.collectionVariables.set(\"likedArticleDescription\", likedArticleDescription);\npm.collectionVariables.set(\"likedArticleBody\", likedArticleBody);\n\nconsole.log(\"Generated Article: \" + likedArticleTitle);"
+                    ]
+                  }
+                },
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 201\", function () {\n    pm.response.to.have.status(201);\n});\n\nconst responseData = pm.response.json();\n\nif (responseData.article && responseData.article.slug) {\n    pm.collectionVariables.set(\"likedArticleSlug\", responseData.article.slug);\n    console.log(\"Captured Slug: \" + responseData.article.slug);\n}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{authorToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"article\": {\n    \"title\": \"{{likedArticleTitle}}\",\n    \"description\": \"{{likedArticleDescription}}\",\n    \"body\": \"{{likedArticleBody}}\",\n    \"tagList\": [\n        \"Favourite\"\n        ]\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/articles",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "articles"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Favorite Article as Liker",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 200 OK\", function () {\n    pm.response.to.have.status(200);\n});\n\npm.test(\"Article favorited state is true and counter increments to 1\", function () {\n    const responseData = pm.response.json();\n    pm.expect(responseData.article.favorited).to.be.true;\n    pm.expect(responseData.article.favoritesCount).to.eql(1);\n});"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{readerToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/articles/:slug/favorite",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "articles",
+                    ":slug",
+                    "favorite"
+                  ],
+                  "variable": [
+                    {
+                      "key": "slug",
+                      "value": "{{likedArticleSlug}}"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get Articles Favorited by Liker",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 200 OK\", function () {\n    pm.response.to.have.status(200);\n});\n\npm.test(\"Article appears in filtered favorited articles list\", function () {\n    const responseData = pm.response.json();\n    pm.expect(responseData).to.have.property(\"articles\");\n    \n    const targetSlug = pm.collectionVariables.get(\"likedArticleSlug\");\n    const foundArticle = responseData.articles.find(a => a.slug === targetSlug);\n\n    pm.expect(foundArticle).to.not.be.undefined;\n    pm.expect(foundArticle.favorited).to.be.true;\n    pm.expect(foundArticle.favoritesCount).to.eql(1);\n});"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/articles?favorited={{readerUsername}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "articles"
+                  ],
+                  "query": [
+                    {
+                      "key": "author",
+                      "value": "DanDelis",
+                      "disabled": true
+                    },
+                    {
+                      "key": "limit",
+                      "value": "60",
+                      "disabled": true
+                    },
+                    {
+                      "key": "favorited",
+                      "value": "{{readerUsername}}"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Unfavorite Article as Liker",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 200 OK\", function () {\n    pm.response.to.have.status(200);\n});\n\npm.test(\"Article favorited state is false and counter decrements to 0\", function () {\n    const responseData = pm.response.json();\n    pm.expect(responseData.article.favorited).to.be.false;\n    pm.expect(responseData.article.favoritesCount).to.eql(0);\n});"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{readerToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "DELETE",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/articles/:slug/favorite",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "articles",
+                    ":slug",
+                    "favorite"
+                  ],
+                  "variable": [
+                    {
+                      "key": "slug",
+                      "value": "{{likedArticleSlug}}"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get Articles Favorited by Liker (After Unfavorite)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 200 OK\", function () {\n    pm.response.to.have.status(200);\n});\n\npm.test(\"Article no longer appears in filtered favorited list\", function () {\n    const responseData = pm.response.json();\n    const targetSlug = pm.collectionVariables.get(\"likedArticleSlug\");\n    const foundArticle = responseData.articles.find(a => a.slug === targetSlug);\n\n    pm.expect(foundArticle).to.be.undefined;\n});"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{readerToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/articles?favorited={{readerUsername}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "articles"
+                  ],
+                  "query": [
+                    {
+                      "key": "author",
+                      "value": "DanDelis",
+                      "disabled": true
+                    },
+                    {
+                      "key": "limit",
+                      "value": "60",
+                      "disabled": true
+                    },
+                    {
+                      "key": "favorited",
+                      "value": "{{readerUsername}}"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Cleanup Author Article",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Parent article deleted successfully\", function () {\n    pm.response.to.have.status(200);\n});"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{authorToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "DELETE",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/articles/:slug",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "articles",
+                    ":slug"
+                  ],
+                  "variable": [
+                    {
+                      "key": "slug",
+                      "value": "{{likedArticleSlug}}"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "userToken",
+      "value": ""
+    },
+    {
+      "key": "dynamicUsername",
+      "value": ""
+    },
+    {
+      "key": "dynamicEmail",
+      "value": ""
+    },
+    {
+      "key": "dynamicBio",
+      "value": ""
+    },
+    {
+      "key": "dynamicImage",
+      "value": ""
+    },
+    {
+      "key": "initialTitle",
+      "value": ""
+    },
+    {
+      "key": "initialDescription",
+      "value": ""
+    },
+    {
+      "key": "initialBody",
+      "value": ""
+    },
+    {
+      "key": "articleSlug",
+      "value": ""
+    },
+    {
+      "key": "newTitle",
+      "value": ""
+    },
+    {
+      "key": "updatedSlug",
+      "value": ""
+    },
+    {
+      "key": "commentId",
+      "value": ""
+    },
+    {
+      "key": "articleComment",
+      "value": ""
+    },
+    {
+      "key": "authorToken",
+      "value": ""
+    },
+    {
+      "key": "authorUsername",
+      "value": ""
+    },
+    {
+      "key": "readerToken",
+      "value": ""
+    },
+    {
+      "key": "feedArticleSlug",
+      "value": ""
+    },
+    {
+      "key": "authorEmail",
+      "value": ""
+    },
+    {
+      "key": "readerUsername",
+      "value": ""
+    },
+    {
+      "key": "readerEmail",
+      "value": ""
+    },
+    {
+      "key": "feedArticleTitle",
+      "value": ""
+    },
+    {
+      "key": "feedArticleDescription",
+      "value": ""
+    },
+    {
+      "key": "feedArticleBody",
+      "value": ""
+    },
+    {
+      "key": "likedArticleTitle",
+      "value": ""
+    },
+    {
+      "key": "likedArticleDescription",
+      "value": ""
+    },
+    {
+      "key": "likedArticleBody",
+      "value": ""
+    },
+    {
+      "key": "likedArticleSlug",
+      "value": ""
+    },
+    {
+      "key": "newUsername",
+      "value": ""
+    },
+    {
+      "key": "newEmail",
+      "value": ""
+    },
+    {
+      "key": "newUserToken",
+      "value": ""
+    },
+    {
+      "key": "newUserBio",
+      "value": ""
+    },
+    {
+      "key": "newUserImage",
+      "value": ""
+    },
+    {
+      "key": "title",
+      "value": ""
+    },
+    {
+      "key": "description",
+      "value": ""
+    },
+    {
+      "key": "body",
+      "value": ""
+    },
+    {
+      "key": "slug",
+      "value": ""
+    },
+    {
+      "key": "updatedTitle",
+      "value": ""
+    },
+    {
+      "key": "updatedTitleSlug",
+      "value": ""
+    },
+    {
+      "key": "newArticleComment",
+      "value": ""
+    },
+    {
+      "key": "articleCommentId",
+      "value": ""
+    },
+    {
+      "key": "edgecaseUsername",
+      "value": ""
+    },
+    {
+      "key": "edgecaseEmail",
+      "value": ""
+    },
+    {
+      "key": "InvalidEdgecaseEmail",
+      "value": ""
+    },
+    {
+      "key": "existingEmail",
+      "value": ""
+    },
+    {
+      "key": "existingArticleTitle",
+      "value": ""
+    },
+    {
+      "key": "invalidSlug",
+      "value": ""
+    },
+    {
+      "key": "baselineFavoritesCount",
+      "value": ""
+    },
+    {
+      "key": "edgeCaseComment",
+      "value": ""
+    },
+    {
+      "key": "baselineFollowCount",
+      "value": ""
+    },
+    {
+      "key": "invalidUserName",
+      "value": ""
+    }
+  ]
+}
