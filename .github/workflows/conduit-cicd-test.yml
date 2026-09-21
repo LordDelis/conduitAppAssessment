@@ -1,0 +1,64 @@
+name: End-to-End & API Testing Pipeline
+
+on: push
+
+jobs:
+  test-suite:
+    name: Run Cypress and Newman Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Checkout repository code
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # 2. Setup Node.js environment
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: 'npm'
+
+      # 3. Install project dependencies
+      - name: Install Dependencies
+        run: npm ci
+
+      # 4. Install Newman globally for API tests
+      - name: Install Newman & Reporters
+        run: npm install -g newman newman-reporter-htmlextra
+
+      # 5. Spin up the Application server
+      - name: Start Local Server
+        run: npm run dev
+        continue-on-error: false
+
+      # 6. Run Postman API Tests via Newman CLI
+      - name: Execute Postman API Tests (Newman)
+        run: |
+          newman run postman/conduitCollection.json \
+            -e postman/conduitEnvironment.json \
+            -r cli,htmlextra \
+            --reporter-htmlextra-export ./reports/postman-report.html \
+            --insecure
+
+      # 7. Run Cypress E2E Tests (Headless)
+      - name: Execute Cypress UI Tests
+        uses: cypress-io/github-action@v6
+        with:
+          # Automatically uses package.json configuration, runs headless
+          browser: chrome
+          record: false
+        env:
+          CYPRESS_baseUrl: http://localhost:3000
+
+      # 8. Upload HTML Reports as Artifacts (Accessible via GitHub UI)
+      - name: Upload Test Reports Artifact
+        uses: actions/upload-artifact@v4
+        if: always() # Ensures reports upload even if test steps fail
+        with:
+          name: qa-test-execution-reports
+          path: |
+            ./reports/
+            cypress/screenshots/
+            cypress/videos/
+          retention-days: 7
