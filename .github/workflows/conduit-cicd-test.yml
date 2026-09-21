@@ -7,6 +7,17 @@ jobs:
     name: Run Cypress and Newman Tests
     runs-on: ubuntu-latest
 
+      # 1. Spin up a real MySQL database service container
+    services:
+        mysql:
+          image: mysql:8.0
+          env:
+            MYSQL_ROOT_PASSWORD: mysecretpassword
+            MYSQL_DATABASE: realworld-db
+          ports:
+            - 3306:3306
+          options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
     steps:
       # 1. Checkout repository code
       - name: Checkout Code
