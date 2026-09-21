@@ -57,9 +57,10 @@ jobs:
             --insecure
 
       - name: Execute Cypress UI Tests
+        if: ${{ !cancelled() }}
         uses: cypress-io/github-action@v6
         with:
-          install: false          # already ran npm ci
+          install: false
           browser: chrome
           record: false
         env:
