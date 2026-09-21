@@ -7,65 +7,72 @@ jobs:
     name: Run Cypress and Newman Tests
     runs-on: ubuntu-latest
 
-      # 1. Spin up a real MySQL database service container
     services:
-        mysql:
-          image: mysql:8.0
-          env:
-            MYSQL_ROOT_PASSWORD: mysecretpassword
-            MYSQL_DATABASE: realworld-db
-          ports:
-            - 3306:3306
-          options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: mysecretpassword
+          MYSQL_DATABASE: realworld-db
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot -pmysecretpassword"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
 
     steps:
-      # 1. Checkout repository code
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      # 2. Setup Node.js environment
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 18
           cache: 'npm'
 
-      # 3. Install project dependencies
       - name: Install Dependencies
         run: npm ci
 
-      # 4. Install Newman globally for API tests
       - name: Install Newman & Reporters
         run: npm install -g newman newman-reporter-htmlextra
 
-      # 5. Spin up the Application server
+      # Run in the background, log to a file
       - name: Start Local Server
-        run: npm run dev
-        continue-on-error: false
+        run: |
+          nohup npm run dev > server.log 2>&1 &
+          echo "Server starting in background..."
 
-      # 6. Run Postman API Tests via Newman CLI
+      # Block until both ports accept connections (fails after 60s)
+      - name: Wait for Server
+        run: npx wait-on tcp:3000 tcp:3001 --timeout 60000
+
       - name: Execute Postman API Tests (Newman)
         run: |
+          mkdir -p reports
           newman run postman/conduitCollection.json \
             -e postman/conduitEnvironment.json \
             -r cli,htmlextra \
             --reporter-htmlextra-export ./reports/postman-report.html \
             --insecure
 
-      # 7. Run Cypress E2E Tests (Headless)
       - name: Execute Cypress UI Tests
         uses: cypress-io/github-action@v6
         with:
-          # Automatically uses package.json configuration, runs headless
+          install: false          # already ran npm ci
           browser: chrome
           record: false
         env:
           CYPRESS_baseUrl: http://localhost:3000
 
-      # 8. Upload HTML Reports as Artifacts (Accessible via GitHub UI)
+      # Handy for debugging when something fails
+      - name: Print Server Logs
+        if: failure()
+        run: cat server.log
+
       - name: Upload Test Reports Artifact
         uses: actions/upload-artifact@v4
-        if: always() # Ensures reports upload even if test steps fail
+        if: always()
         with:
           name: qa-test-execution-reports
           path: |
