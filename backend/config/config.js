@@ -6,7 +6,7 @@ module.exports = {
   development: {
     username: process.env.DEV_DB_USERNAME || 'root',
     password: process.env.DEV_DB_PASSWORD || 'mysecretpassword',
-    database: process.env.DEV_DB_NAME || 'database_development',
+    database: process.env.DEV_DB_NAME || 'realworld-db',
     host: process.env.DEV_DB_HOSTNAME || '127.0.0.1',
     port: process.env.DEV_DB_PORT || 3306,
     dialect: process.env.DEV_DB_DIALECT || 'mysql',
