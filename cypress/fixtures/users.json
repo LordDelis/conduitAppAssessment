@@ -1,0 +1,9 @@
+{
+  "invalidUser": {
+    "firstName": "T",
+    "email": "invalidemail"
+  },
+  "existingUser": {
+    "email": "mark@facebook.com"
+  }
+}
