@@ -7,26 +7,28 @@ services:
     environment:
       - NODE_ENV=${ENV}
       - JWT_KEY=${JWT_KEY}
-      - ${PREFIX}_DB_USERNAME=${POSTGRES_USER}
-      - ${PREFIX}_DB_PASSWORD=${POSTGRES_PASSWORD}
-      - ${PREFIX}_DB_NAME=realworld
-      - ${PREFIX}_DB_HOSTNAME=postgres
-      - ${PREFIX}_DB_DIALECT=postgres
+      - ${PREFIX}_DB_USERNAME=${MYSQL_USER:-root}
+      - ${PREFIX}_DB_PASSWORD=${MYSQL_PASSWORD:-mysecretpassword}
+      - ${PREFIX}_DB_NAME=realworld-db
+      - ${PREFIX}_DB_HOSTNAME=mysql
+      - ${PREFIX}_DB_DIALECT=mysql
+      - ${PREFIX}_DB_LOGGGIN=true
     ports:
-      - "${PORT}:3001"
+      - "${PORT:-3001}:3001"
     depends_on:
-      - postgres
+      - mysql
 
-  postgres:
-    image: postgres:12
+  mysql:
+    image: mysql:8.0
+    container_name: realworld-app
     restart: unless-stopped
     environment:
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - POSTGRES_DB=realworld
+      - MYSQL_ROOT_PASSWORD=${MYSQL_PASSWORD:-mysecretpassword}
+      - MYSQL_DATABASE=realworld-db
+    ports:
+      - "3306:3306"
     volumes:
-      - realworld-data:/var/lib/postgresql/data/
+      - mysql-data:/var/lib/mysql
 
 volumes:
-  realworld-data:
-
+  mysql-data:

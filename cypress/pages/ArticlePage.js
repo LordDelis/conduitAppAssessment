@@ -1,79 +1,83 @@
 import { Logger } from "../utils/logger";
 
-class UserSignUpPage {
+class ArticlePage {
 
   // Page Elements
   elements = {
 
-    signUpText() {
-      return cy.get(':nth-child(3) > .nav-link')
-    },
-    nameInput(){
-      return cy.get('[name="username"]')
-    },
-    emailInput(){
-      return cy.get('[name="email"]')
-    },
-    passwordInput(){
-      return cy.get('[name="password"]')
-    },
-    signUpButton(){
-      return cy.get('.btn')
-    },
-    newArticleText(){
+    newArticleBtn() {
       return cy.get('.pull-xs-right > :nth-child(2) > .nav-link')
     },
-    yourFeedText(){
-      return cy.get('.feed-toggle > .nav > :nth-child(1) > .nav-link')
+    articleTitleInput(){
+      return cy.get('[name="title"]')
+    },
+    articleDescriptionInput(){
+      return cy.get(':nth-child(2) > [name="description"]')
+    },
+    articleBodyInput(){
+      return cy.get('[name="body"]')
+    },
+    articleTagInput(){
+      return cy.get('[name="tags"]')
+    },
+    publishArticleBtn(){
+      return cy.get('.btn')
     }
 
   }
 
   // Page Actions
-  visitRegistrationPage() {
-    Logger.step('Opening registration page')
-    cy.visit('/');
-    this.elements.signUpText().should('be.visible').click()
+  createNewArticle(){
+    this.elements.newArticleBtn().click()
+    Logger.info('Successfully clicked on New Article button')
+    this.elements.articleTitleInput().should('be.visible')
   }
 
-  enterName(name){
-    Logger.step('Entering name...')
-    if(name) {
-      this.elements.nameInput().clear().type(name)
-      Logger.info('Name successfully entered')
+  enterTitle(title) {
+    Logger.step('Entering title...')
+    if(title) {
+      this.elements.articleTitleInput().clear().type(title)
+      Logger.info('Title successfully entered')
     } else {
-      Logger.error('Error entering name')
+      Logger.error('Error entering Title')
     }
   }
 
-  enterEmail(email) {
-    Logger.step('Entering email...')
-    if(email) {
-      this.elements.emailInput().clear().type(email)
-      Logger.info('Email successfully entered')
+  enterDescription(description) {
+    Logger.step('Entering description...')
+    if(description) {
+      this.elements.articleDescriptionInput().clear().type(description)
+      Logger.info('Description successfully entered')
     } else {
-      Logger.error('Error entering email')
+      Logger.error('Error entering Description')
     }
   }
 
-  enterPassword(password) {
-    Logger.step('Entering password...')
-    if(password){
-      this.elements.passwordInput().clear().type(password)
-      Logger.info('Password successfully entered')
+  enterBody(body) {
+    Logger.step('Entering body...')
+    if(body) {
+      this.elements.articleBodyInput().clear().type(body)
+      Logger.info('Body successfully entered')
     } else {
-      Logger.error('Error entering last password')
+      Logger.error('Error entering body')
     }
   }
 
-  signUp(){
-    this.elements.signUpButton().click()
-    Logger.info('Successfully clicked on signup button')
-    this.elements.newArticleText().should('be.visible')
-    this.elements.yourFeedText().should('be.visible')
-    Logger.info('Account created successfully')
+  enterTag(tag) {
+    Logger.step('Entering tag...')
+    if(tag) {
+      this.elements.articleTagInput().clear().type(tag)
+      Logger.info('Tag successfully entered')
+    } else {
+      Logger.error('Error entering tag')
+    }
+  }
+
+  publishArticle(){
+    this.elements.publishArticleBtn().click()
+    Logger.info('Successfully clicked on publish article button')
   }
 
 }
 
-export default new UserSignUpPage();
+export default new ArticlePage();

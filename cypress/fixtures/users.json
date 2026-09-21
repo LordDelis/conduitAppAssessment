@@ -1,9 +1,6 @@
 {
-  "invalidUser": {
-    "firstName": "T",
-    "email": "invalidemail"
-  },
-  "existingUser": {
-    "email": "mark@facebook.com"
+  "validUser": {
+    "email": "new_user_5983@gmail.com",
+    "password": "Password123!"
   }
 }

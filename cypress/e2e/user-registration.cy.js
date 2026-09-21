@@ -1,33 +1,26 @@
-import MerchantSignUpPage from '../pages/MerchantSignUpPage';
-import { generateRegistrationData } from '../utils/dataBuilder';
+import RegistrationPage from '../pages/RegistrationPage';
+import { registrationData } from '../utils/dataBuilder';
 import { Logger } from '../utils/logger';
 
-describe('Merchant Sign Up Feature', () => {
+describe('User Sign Up Feature', () => {
   
-  let registrationData;
+  let inputData;
 
   beforeEach(() => {
-    // Generate fresh data for every test iteration to ensure unique payloads
-    registrationData = generateRegistrationData()
+    inputData = registrationData()
   });
 
-  it('Should successfully fill new merchant registration form with valid dynamic data', () => {
-    MerchantSignUpPage.visitRegistrationPage()
-    MerchantSignUpPage.selectNewUserRegistration()
+  it('Should successfully fill new user registration form with valid dynamic data', () => {
+    RegistrationPage.visitRegistrationPage()
 
-    Logger.step('<<<----Filling Merchant Details ---->>>');
-    MerchantSignUpPage.fillBusinessName(registrationData.businessName)
-    MerchantSignUpPage.fillFirstName(registrationData.merchantFirstName)
-    MerchantSignUpPage.fillLastName(registrationData.merchantLastName)
-    MerchantSignUpPage.fillBusinessEmailAddress(registrationData.businessEmailAddress)
-    MerchantSignUpPage.fillNationality()
-    MerchantSignUpPage.selectGender(registrationData.merchantGender)
-    MerchantSignUpPage.enterPhoneNumber(registrationData.merchantPhoneNumber)
-    MerchantSignUpPage.fillPassword(registrationData.merchantPassword)
-    MerchantSignUpPage.agreeToTermsAndCondition()
+    Logger.step('<<<----Filling User Details ---->>>');
 
-    Logger.step('Submit Merchant Details');
-    MerchantSignUpPage.createAccount()
+    RegistrationPage.enterName(inputData.nameOfUser)
+    RegistrationPage.enterEmail(inputData.emailAddress)
+    RegistrationPage.enterPassword(inputData.userPassword)
+
+    Logger.step('Submit User Details');
+    RegistrationPage.signUp()
 
   });
 

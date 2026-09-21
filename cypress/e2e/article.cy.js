@@ -1,5 +1,6 @@
-import RegistrationPage from '../pages/RegistrationPage';
-import { registrationData } from '../utils/dataBuilder';
+import ArticlePage from '../pages/ArticlePage';
+import users from '../fixtures/users.json';
+import { generateArticleData } from '../utils/dataBuilder';
 import { Logger } from '../utils/logger';
 
 describe('User Sign Up Feature', () => {
@@ -7,20 +8,18 @@ describe('User Sign Up Feature', () => {
   let inputData;
 
   beforeEach(() => {
-    inputData = registrationData()
+    inputData = generateArticleData()
+    cy.userLogin(users.validUser.email, users.validUser.password)
   });
 
-  it('Should successfully fill new user registration form with valid dynamic data', () => {
-    RegistrationPage.visitRegistrationPage()
-
-    Logger.step('<<<----Filling User Details ---->>>');
-
-    RegistrationPage.enterName(inputData.nameOfUser)
-    RegistrationPage.enterEmail(inputData.emailAddress)
-    RegistrationPage.enterPassword(inputData.userPassword)
-
-    Logger.step('Submit User Details');
-    RegistrationPage.signUp()
+  it('Should successfully create article', () => {
+    ArticlePage.createNewArticle()
+    ArticlePage.enterTitle(inputData.articleTitle)
+    ArticlePage.enterDescription(inputData.articleDescription)
+    ArticlePage.enterBody(inputData.articleBody)
+    ArticlePage.enterTag(inputData.articleTag)
+    ArticlePage.publishArticle()
+    Logger.step('Article created successfully');
 
   });
 
