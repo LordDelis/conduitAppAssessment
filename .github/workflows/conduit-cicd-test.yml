@@ -42,6 +42,12 @@ jobs:
         run: |
           nohup npm run dev > server.log 2>&1 &
           echo "Server starting in background..."
+        env:
+          JWT_KEY: "super-secret-dev-key-for-github-actions"
+          DB_HOST: "127.0.0.1"
+          DB_USER: "root"
+          DB_PASSWORD: "mysecretpassword"
+          DB_NAME: "realworld-db"
 
       # Block until both ports accept connections (fails after 60s)
       - name: Wait for Server
