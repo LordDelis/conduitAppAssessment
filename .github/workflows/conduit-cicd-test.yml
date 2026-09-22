@@ -66,9 +66,7 @@ jobs:
         if: ${{ !cancelled() }}
         uses: cypress-io/github-action@v6
         with:
-          install: false
-          browser: chrome
-          record: false
+          command: npm run cy:run
         env:
           CYPRESS_baseUrl: http://localhost:3000
 

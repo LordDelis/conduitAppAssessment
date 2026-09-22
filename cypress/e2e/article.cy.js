@@ -3,7 +3,7 @@ import users from '../fixtures/users.json';
 import { generateArticleData } from '../utils/dataBuilder';
 import { Logger } from '../utils/logger';
 
-describe('User Sign Up Feature', () => {
+describe('Create Article Feature', () => {
   
   let inputData;
 
