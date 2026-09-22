@@ -1,10 +1,10 @@
 {
   "info": {
-    "_postman_id": "98924767-445b-4bcd-87d0-83c7931e68a8",
+    "_postman_id": "3968d5db-7fd1-43d4-ac3d-98b0ff9e5b11",
     "name": "CONDUIT REALWORLD APPLICATION",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "_exporter_id": "21443378",
-    "_collection_link": "https://go.postman.co/collection/21443378-98924767-445b-4bcd-87d0-83c7931e68a8?source=collection_link"
+    "_collection_link": "https://go.postman.co/collection/21443378-3968d5db-7fd1-43d4-ac3d-98b0ff9e5b11?source=collection_link"
   },
   "item": [
     {
@@ -21,7 +21,7 @@
                   "script": {
                     "type": "text/javascript",
                     "exec": [
-                      "// Generate unique identifiers\nconst number = Math.floor(Math.random() * 10000) + 1;\nconst username = \"new_user_\" + number;\nconst email = \"new_user_\" + number + \"@gmail.com\";\n\n// Set collection variables dynamically\npm.collectionVariables.set(\"newUsername\", username);\npm.collectionVariables.set(\"newEmail\", email);\n\nconsole.log(\"Registering new user: \" + username);"
+                      "// Generate unique identifiers\nconst number = Math.floor(Math.random() * 10000) + 1;\nconst username = \"new_user_\" + number;\nconst email = \"new_user_\" + number + \"@gmail.com\";\n\n// Set collection variables dynamically\npm.environment.set(\"newUsername\", username);\npm.environment.set(\"newEmail\", email);\n\nconsole.log(\"Registering new user: \" + username);"
                     ]
                   }
                 },
@@ -30,7 +30,7 @@
                   "script": {
                     "type": "text/javascript",
                     "exec": [
-                      "// 1. Validate HTTP Status Code\npm.test(\"Status code is 201 Created\", function () {\n    pm.response.to.have.status(201);\n});\n\nconst responseData = pm.response.json();\n\nif (responseData.user && responseData.user.username) {\n    const invalidUserName = responseData.user.username + \"-invalid\";\n    pm.collectionVariables.set(\"invalidUserName\", invalidUserName);\n    console.log(\"Generated Invalid Username: \" + invalidUserName);\n}"
+                      "// 1. Validate HTTP Status Code\npm.test(\"Status code is 201 Created\", function () {\n    pm.response.to.have.status(201);\n});\n\nconst responseData = pm.response.json();\n\nif (responseData.user && responseData.user.username) {\n    const invalidUserName = responseData.user.username + \"-invalid\";\n    const existingEmail = responseData.user.email;\n    pm.environment.set(\"invalidUserName\", invalidUserName);\n    pm.environment.set(\"existingEmail\", existingEmail);\n}"
                     ]
                   }
                 }
@@ -67,7 +67,7 @@
                   "script": {
                     "type": "text/javascript",
                     "exec": [
-                      "// 1. Validate HTTP Status Code\npm.test(\"Status code is 200 OK\", function () {\n    pm.response.to.have.status(200);\n});\n\nconst responseData = pm.response.json();\n\nif (responseData.user && responseData.user.token) {\n    pm.collectionVariables.set(\"newUserToken\", responseData.user.token);\n}"
+                      "// 1. Validate HTTP Status Code\npm.test(\"Status code is 200 OK\", function () {\n    pm.response.to.have.status(200);\n});\n\nconst responseData = pm.response.json();\n\nif (responseData.user && responseData.user.token) {\n    pm.environment.set(\"newUserToken\", responseData.user.token);\n}"
                     ]
                   }
                 }
@@ -92,6 +92,52 @@
                   "path": [
                     "users",
                     "login"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Register another user (For negative test)",
+              "event": [
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "// Generate unique identifiers\nconst number = Math.floor(Math.random() * 10000) + 1;\nconst anotherUsername = \"another_user_\" + number;\nconst anotherEmail = \"another_user_\" + number + \"@gmail.com\";\n\n// Set collection variables dynamically\npm.environment.set(\"anotherUsername\", anotherUsername);\npm.environment.set(\"anotherEmail\", anotherEmail);"
+                    ]
+                  }
+                },
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "const responseData = pm.response.json();\n\nif (responseData.user && responseData.user.username) {\n    const anotherUserToken = responseData.user.token;\n    pm.environment.set(\"anotherUserToken\", anotherUserToken);\n}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"user\": {\n    \"username\": \"{{anotherUsername}}\",\n    \"email\": \"{{anotherEmail}}\",\n    \"password\": \"Password123!\",\n    \"bio\": \"\",\n    \"image\": \"\"\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/users",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "users"
                   ]
                 }
               },
@@ -128,15 +174,6 @@
                 },
                 "method": "GET",
                 "header": [],
-                "body": {
-                  "mode": "raw",
-                  "raw": "",
-                  "options": {
-                    "raw": {
-                      "language": "json"
-                    }
-                  }
-                },
                 "url": {
                   "raw": "{{baseUrl}}/user",
                   "host": [
@@ -157,7 +194,7 @@
                   "script": {
                     "type": "text/javascript",
                     "exec": [
-                      "// Generate unique identifiers using timestamps\nconst number = Math.floor(Math.random() * 10000) + 1;\nconst bio = \"This is a test bio-\" + number;\nconst image = \"image-\" + number + \".png\";\n\n// Set collection variables dynamically\npm.collectionVariables.set(\"newUserBio\", bio);\npm.collectionVariables.set(\"newUserImage\", image);\n\nconsole.log(\"Profile updated!!\");"
+                      "// Generate unique identifiers using timestamps\nconst number = Math.floor(Math.random() * 10000) + 1;\nconst bio = \"This is a test bio-\" + number;\nconst image = \"image-\" + number + \".png\";\n\n// Set collection variables dynamically\npm.environment.set(\"newUserBio\", bio);\npm.environment.set(\"newUserImage\", image);\n\nconsole.log(\"Profile updated!!\");"
                     ]
                   }
                 },
@@ -226,15 +263,6 @@
               "request": {
                 "method": "GET",
                 "header": [],
-                "body": {
-                  "mode": "raw",
-                  "raw": "",
-                  "options": {
-                    "raw": {
-                      "language": "json"
-                    }
-                  }
-                },
                 "url": {
                   "raw": "{{baseUrl}}/tags",
                   "host": [
@@ -268,15 +296,6 @@
               "request": {
                 "method": "GET",
                 "header": [],
-                "body": {
-                  "mode": "raw",
-                  "raw": "",
-                  "options": {
-                    "raw": {
-                      "language": "json"
-                    }
-                  }
-                },
                 "url": {
                   "raw": "{{baseUrl}}/profiles/:username",
                   "host": [
@@ -419,7 +438,7 @@
                   "script": {
                     "type": "text/javascript",
                     "exec": [
-                      "// Generate unique identifiers\nconst number = Math.floor(Math.random() * 10000) + 1;\nconst articleTitle = \"Automating article creation \" + number;\nconst articleDescription = \"Article description \" + number;\nconst articleBody = \"Article body \" + number;\n\npm.collectionVariables.set(\"title\", articleTitle);\npm.collectionVariables.set(\"description\", articleDescription);\npm.collectionVariables.set(\"body\", articleBody);\nconsole.log(\"Generated Article: \" + articleTitle);"
+                      "// Generate unique identifiers\nconst number = Math.floor(Math.random() * 10000) + 1;\nconst articleTitle = \"Automating article creation \" + number;\nconst articleDescription = \"Article description \" + number;\nconst articleBody = \"Article body \" + number;\n\npm.environment.set(\"title\", articleTitle);\npm.environment.set(\"description\", articleDescription);\npm.environment.set(\"body\", articleBody);\nconsole.log(\"Generated Article: \" + articleTitle);"
                     ]
                   }
                 },
@@ -428,7 +447,7 @@
                   "script": {
                     "type": "text/javascript",
                     "exec": [
-                      "pm.test(\"Status code is 201\", function () {\n    pm.response.to.have.status(201);\n});\n\nconst responseData = pm.response.json();\n\nif (responseData.article && responseData.article.slug) {\n    // 1. Save the slug and title of the created article to use in other tests\n    pm.collectionVariables.set(\"slug\", responseData.article.slug);\n    pm.collectionVariables.set(\"existingArticleTitle\", responseData.article.title);\n    console.log(\"Captured Slug: \" + responseData.article.slug);\n\n    // 2. Generate and save a dynamic invalid slug variable to be used in edge case test\n    const invalidSlug = responseData.article.slug + \"-invalid\";\n    pm.collectionVariables.set(\"invalidSlug\", invalidSlug);\n    console.log(\"Generated Invalid Slug: \" + invalidSlug);\n}"
+                      "pm.test(\"Status code is 201\", function () {\n    pm.response.to.have.status(201);\n});\n\nconst responseData = pm.response.json();\n\nif (responseData.article && responseData.article.slug) {\n    // 1. Save the slug and title of the created article to use in other tests\n    pm.environment.set(\"slug\", responseData.article.slug);\n    pm.environment.set(\"existingArticleTitle\", responseData.article.title);\n    console.log(\"Captured Slug: \" + responseData.article.slug);\n\n    // 2. Generate and save a dynamic invalid slug variable to be used in edge case test\n    const invalidSlug = responseData.article.slug + \"-invalid\";\n    pm.environment.set(\"invalidSlug\", invalidSlug);\n    console.log(\"Generated Invalid Slug: \" + invalidSlug);\n}"
                     ]
                   }
                 }
@@ -483,15 +502,6 @@
               "request": {
                 "method": "GET",
                 "header": [],
-                "body": {
-                  "mode": "raw",
-                  "raw": "",
-                  "options": {
-                    "raw": {
-                      "language": "json"
-                    }
-                  }
-                },
                 "url": {
                   "raw": "{{baseUrl}}/articles?author={{newUsername}}",
                   "host": [
@@ -546,15 +556,6 @@
                 },
                 "method": "GET",
                 "header": [],
-                "body": {
-                  "mode": "raw",
-                  "raw": "",
-                  "options": {
-                    "raw": {
-                      "language": "json"
-                    }
-                  }
-                },
                 "url": {
                   "raw": "{{baseUrl}}/articles/feed",
                   "host": [
@@ -584,15 +585,6 @@
               "request": {
                 "method": "GET",
                 "header": [],
-                "body": {
-                  "mode": "raw",
-                  "raw": "",
-                  "options": {
-                    "raw": {
-                      "language": "json"
-                    }
-                  }
-                },
                 "url": {
                   "raw": "{{baseUrl}}/articles/:slug",
                   "host": [
@@ -620,7 +612,7 @@
                   "script": {
                     "type": "text/javascript",
                     "exec": [
-                      "pm.test(\"Status code is 200\", function () {\n    pm.response.to.have.status(200);\n});\n\nconst responseData = pm.response.json();\n\nif (responseData.article && responseData.article.slug) {\n    pm.collectionVariables.set(\"updatedTitleSlug\", responseData.article.slug);\n}"
+                      "pm.test(\"Status code is 200\", function () {\n    pm.response.to.have.status(200);\n});\n\nconst responseData = pm.response.json();\n\nif (responseData.article && responseData.article.slug) {\n    pm.environment.set(\"updatedTitleSlug\", responseData.article.slug);\n    pm.environment.set(\"existingArticleTitle\", responseData.article.title);\n}"
                     ]
                   }
                 },
@@ -629,7 +621,7 @@
                   "script": {
                     "type": "text/javascript",
                     "exec": [
-                      "const number = Math.floor(Math.random() * 10000) + 1;\nconst updatedTitle = \"Updated Automating Article Creation \" + number;\n\npm.collectionVariables.set(\"updatedTitle\", updatedTitle);"
+                      "const number = Math.floor(Math.random() * 10000) + 1;\nconst updatedTitle = \"Updated Automating Article Creation \" + number;\n\npm.environment.set(\"updatedTitle\", updatedTitle);"
                     ]
                   }
                 }
@@ -683,7 +675,7 @@
                   "bearer": [
                     {
                       "key": "token",
-                      "value": "{{json_web_token_0619}}",
+                      "value": "{{newUserToken}}",
                       "type": "string"
                     }
                   ]
@@ -846,7 +838,7 @@
                   "script": {
                     "type": "text/javascript",
                     "exec": [
-                      "// Generate unique identifiers\nconst number = Math.floor(Math.random() * 10000) + 1;\nconst comment = \"Automation comment \" + number;\npm.collectionVariables.set(\"newArticleComment\", comment);"
+                      "// Generate unique identifiers\nconst number = Math.floor(Math.random() * 10000) + 1;\nconst comment = \"Automation comment \" + number;\npm.environment.set(\"newArticleComment\", comment);"
                     ]
                   }
                 },
@@ -855,7 +847,7 @@
                   "script": {
                     "type": "text/javascript",
                     "exec": [
-                      "pm.test(\"Status code is 201\", function () {\n    pm.response.to.have.status(201);\n});\n\nconst responseData = pm.response.json();\nif (responseData.comment && responseData.comment.id) {\n    pm.collectionVariables.set(\"articleCommentId\", responseData.comment.id);\n    console.log(\"Captured Comment ID: \" + responseData.comment.id);\n}"
+                      "pm.test(\"Status code is 201\", function () {\n    pm.response.to.have.status(201);\n});\n\nconst responseData = pm.response.json();\nif (responseData.comment && responseData.comment.id) {\n    pm.environment.set(\"articleCommentId\", responseData.comment.id);\n    console.log(\"Captured Comment ID: \" + responseData.comment.id);\n}"
                     ]
                   }
                 }
@@ -928,15 +920,6 @@
                 },
                 "method": "GET",
                 "header": [],
-                "body": {
-                  "mode": "raw",
-                  "raw": "",
-                  "options": {
-                    "raw": {
-                      "language": "json"
-                    }
-                  }
-                },
                 "url": {
                   "raw": "{{baseUrl}}/articles/:slug/comments",
                   "host": [
@@ -1016,6 +999,70 @@
                 }
               },
               "response": []
+            },
+            {
+              "name": "Add comment (For negative test)",
+              "event": [
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "// Generate unique identifiers\nconst number = Math.floor(Math.random() * 10000) + 1;\nconst comment = \"Automation comment \" + number;\npm.environment.set(\"newArticleComment\", comment);"
+                    ]
+                  }
+                },
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test(\"Status code is 201\", function () {\n    pm.response.to.have.status(201);\n});\n\nconst responseData = pm.response.json();\nif (responseData.comment && responseData.comment.id) {\n    pm.environment.set(\"articleCommentId\", responseData.comment.id);\n    console.log(\"Captured Comment ID: \" + responseData.comment.id);\n}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{newUserToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"comment\": {\n    \"body\": \"{{newArticleComment}}\"\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/articles/:slug/comments",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "articles",
+                    ":slug",
+                    "comments"
+                  ],
+                  "variable": [
+                    {
+                      "key": "slug",
+                      "value": "{{updatedTitleSlug}}"
+                    }
+                  ]
+                }
+              },
+              "response": []
             }
           ]
         }
@@ -1044,7 +1091,7 @@
                   "script": {
                     "type": "text/javascript",
                     "exec": [
-                      "// Generate unique identifiers\nconst number = Math.floor(Math.random() * 10000) + 1;\nconst username = \"edgecase_user_\" + number;\n// const email = \"qa_user_\" + number + \"@gmail.com\";\n\n// Set collection variables dynamically\npm.collectionVariables.set(\"edgecaseUsername\", username);\n// pm.collectionVariables.set(\"dynamicEmail\", email);"
+                      "// Generate unique identifiers\nconst number = Math.floor(Math.random() * 10000) + 1;\nconst username = \"edgecase_user_\" + number;\n// const email = \"qa_user_\" + number + \"@gmail.com\";\n\n// Set collection variables dynamically\npm.environment.set(\"edgecaseUsername\", username);\n// pm.environment.set(\"dynamicEmail\", email);"
                     ]
                   }
                 }
@@ -1090,7 +1137,7 @@
                   "script": {
                     "type": "text/javascript",
                     "exec": [
-                      "// Generate unique identifiers\nconst number = Math.floor(Math.random() * 10000) + 1;\n// const username = \"edgecase_user_\" + number;\nconst email = \"edgecase_user_\" + number + \"@gmail.com\";\n\n// Set collection variables dynamically\n// pm.collectionVariables.set(\"edgecaseUsername\", username);\npm.collectionVariables.set(\"edgecaseEmail\", email);"
+                      "// Generate unique identifiers\nconst number = Math.floor(Math.random() * 10000) + 1;\n// const username = \"edgecase_user_\" + number;\nconst email = \"edgecase_user_\" + number + \"@gmail.com\";\n\n// Set collection variables dynamically\n// pm.environment.set(\"edgecaseUsername\", username);\npm.environment.set(\"edgecaseEmail\", email);"
                     ]
                   }
                 }
@@ -1136,7 +1183,7 @@
                   "script": {
                     "type": "text/javascript",
                     "exec": [
-                      "// Generate unique identifiers\nconst number = Math.floor(Math.random() * 10000) + 1;\nconst username = \"edgecase_user_\" + number;\nconst email = \"invalidEdgecase_user_\" + number;\n\n// Set collection variables dynamically\npm.collectionVariables.set(\"edgecaseUsername\", username);\npm.collectionVariables.set(\"InvalidEdgecaseEmail\", email);"
+                      "// Generate unique identifiers\nconst number = Math.floor(Math.random() * 10000) + 1;\nconst username = \"edgecase_user_\" + number;\nconst email = \"invalidEdgecase_user_\" + number;\n\n// Set collection variables dynamically\npm.environment.set(\"edgecaseUsername\", username);\npm.environment.set(\"InvalidEdgecaseEmail\", email);"
                     ]
                   }
                 }
@@ -1219,7 +1266,7 @@
                   "script": {
                     "type": "text/javascript",
                     "exec": [
-                      "// Generate unique identifiers\nconst number = Math.floor(Math.random() * 10000) + 1;\nconst username = \"edgecase_user_\" + number;\nconst email = \"edgecase_user_\" + number + \"@gmail.com\";\n\n// Set collection variables dynamically\npm.collectionVariables.set(\"edgecaseUsername\", username);\npm.collectionVariables.set(\"edgecaseEmail\", email);"
+                      "// Generate unique identifiers\nconst number = Math.floor(Math.random() * 10000) + 1;\nconst username = \"edgecase_user_\" + number;\nconst email = \"edgecase_user_\" + number + \"@gmail.com\";\n\n// Set collection variables dynamically\npm.environment.set(\"edgecaseUsername\", username);\npm.environment.set(\"edgecaseEmail\", email);"
                     ]
                   }
                 }
@@ -1311,15 +1358,6 @@
               "request": {
                 "method": "GET",
                 "header": [],
-                "body": {
-                  "mode": "raw",
-                  "raw": "",
-                  "options": {
-                    "raw": {
-                      "language": "json"
-                    }
-                  }
-                },
                 "url": {
                   "raw": "{{baseUrl}}/user",
                   "host": [
@@ -1345,7 +1383,7 @@
                   "script": {
                     "type": "text/javascript",
                     "exec": [
-                      "// Generate unique identifiers\nconst number = Math.floor(Math.random() * 10000) + 1;\nconst articleTitle = \"Automating article creation \" + number;\nconst articleDescription = \"Article description \" + number;\nconst articleBody = \"Article body \" + number;\n\npm.collectionVariables.set(\"title\", articleTitle);\npm.collectionVariables.set(\"description\", articleDescription);\npm.collectionVariables.set(\"body\", articleBody);\nconsole.log(\"Generated Article: \" + articleTitle);"
+                      "// Generate unique identifiers\nconst number = Math.floor(Math.random() * 10000) + 1;\nconst articleTitle = \"Automating article creation \" + number;\nconst articleDescription = \"Article description \" + number;\nconst articleBody = \"Article body \" + number;\n\npm.environment.set(\"title\", articleTitle);\npm.environment.set(\"description\", articleDescription);\npm.environment.set(\"body\", articleBody);\nconsole.log(\"Generated Article: \" + articleTitle);"
                     ]
                   }
                 },
@@ -1401,7 +1439,7 @@
                   "script": {
                     "type": "text/javascript",
                     "exec": [
-                      "// Generate unique identifiers\nconst number = Math.floor(Math.random() * 10000) + 1;\nconst articleTitle = \"Automating article creation \" + number;\nconst articleDescription = \"Article description \" + number;\nconst articleBody = \"Article body \" + number;\n\npm.collectionVariables.set(\"title\", articleTitle);\npm.collectionVariables.set(\"description\", articleDescription);\npm.collectionVariables.set(\"body\", articleBody);\nconsole.log(\"Generated Article: \" + articleTitle);"
+                      "// Generate unique identifiers\nconst number = Math.floor(Math.random() * 10000) + 1;\nconst articleTitle = \"Automating article creation \" + number;\nconst articleDescription = \"Article description \" + number;\nconst articleBody = \"Article body \" + number;\n\npm.environment.set(\"title\", articleTitle);\npm.environment.set(\"description\", articleDescription);\npm.environment.set(\"body\", articleBody);\nconsole.log(\"Generated Article: \" + articleTitle);"
                     ]
                   }
                 },
@@ -1457,7 +1495,7 @@
                   "script": {
                     "type": "text/javascript",
                     "exec": [
-                      "// Generate unique identifiers\nconst number = Math.floor(Math.random() * 10000) + 1;\nconst articleTitle = \"Automating article creation \" + number;\nconst articleDescription = \"Article description \" + number;\nconst articleBody = \"Article body \" + number;\n\npm.collectionVariables.set(\"title\", articleTitle);\npm.collectionVariables.set(\"description\", articleDescription);\npm.collectionVariables.set(\"body\", articleBody);\nconsole.log(\"Generated Article: \" + articleTitle);"
+                      ""
                     ]
                   }
                 },
@@ -1521,15 +1559,6 @@
               "request": {
                 "method": "GET",
                 "header": [],
-                "body": {
-                  "mode": "raw",
-                  "raw": "",
-                  "options": {
-                    "raw": {
-                      "language": "json"
-                    }
-                  }
-                },
                 "url": {
                   "raw": "{{baseUrl}}/articles/:slug",
                   "host": [
@@ -1574,7 +1603,7 @@
                   "script": {
                     "type": "text/javascript",
                     "exec": [
-                      "const number = Math.floor(Math.random() * 10000) + 1;\nconst updatedTitle = \"Updated API Automation Best Practices \" + number;\n\npm.collectionVariables.set(\"newTitle\", updatedTitle);"
+                      "const number = Math.floor(Math.random() * 10000) + 1;\nconst updatedTitle = \"Updated API Automation Best Practices \" + number;\n\npm.environment.set(\"newTitle\", updatedTitle);"
                     ]
                   }
                 },
@@ -1594,7 +1623,7 @@
                   "bearer": [
                     {
                       "key": "token",
-                      "value": "{{readerToken}}",
+                      "value": "{{anotherUserToken}}",
                       "type": "string"
                     }
                   ]
@@ -1639,7 +1668,7 @@
                   "variable": [
                     {
                       "key": "slug",
-                      "value": "{{slug}}"
+                      "value": "{{updatedTitleSlug}}"
                     }
                   ]
                 }
@@ -1654,7 +1683,7 @@
                   "script": {
                     "type": "text/javascript",
                     "exec": [
-                      "const number = Math.floor(Math.random() * 10000) + 1;\nconst updatedTitle = \"Updated API Automation Best Practices \" + number;\n\npm.collectionVariables.set(\"newTitle\", updatedTitle);"
+                      "const number = Math.floor(Math.random() * 10000) + 1;\nconst updatedTitle = \"Updated API Automation Best Practices \" + number;\n\npm.environment.set(\"newTitle\", updatedTitle);"
                     ]
                   }
                 },
@@ -1734,7 +1763,7 @@
                   "script": {
                     "type": "text/javascript",
                     "exec": [
-                      "const number = Math.floor(Math.random() * 10000) + 1;\nconst updatedTitle = \"Updated API Automation Best Practices \" + number;\n\npm.collectionVariables.set(\"newTitle\", updatedTitle);"
+                      "const number = Math.floor(Math.random() * 10000) + 1;\nconst updatedTitle = \"Updated API Automation Best Practices \" + number;\n\npm.environment.set(\"newTitle\", updatedTitle);"
                     ]
                   }
                 },
@@ -1825,7 +1854,7 @@
                   "bearer": [
                     {
                       "key": "token",
-                      "value": "{{readerToken}}",
+                      "value": "{{anotherUserToken}}",
                       "type": "string"
                     }
                   ]
@@ -1853,7 +1882,7 @@
                   "variable": [
                     {
                       "key": "slug",
-                      "value": "{{slug}}"
+                      "value": "{{updatedTitleSlug}}"
                     }
                   ]
                 }
@@ -2091,7 +2120,7 @@
                   "script": {
                     "type": "text/javascript",
                     "exec": [
-                      "let currentCount = parseInt(pm.collectionVariables.get(\"loopCounter\"));\nconst maxExecutions = 5;\n\nconsole.log(`Execution ${currentCount} of ${maxExecutions}`);\n\nif (currentCount < maxExecutions) {\n    // Increment the counter\n    pm.collectionVariables.set(\"loopCounter\", currentCount + 1);\n    \n    // Tell Postman to execute this same request again\n    pm.execution.setNextRequest(pm.info.requestId);\n} else {\n    // Clean up variable after 5 iterations\n    pm.collectionVariables.unset(\"loopCounter\");\n    console.log(\"Completed 5 executions.\");\n}\n\n// 1. Check if the status code is 200\npm.test(\"Status code is 200\", function () {\n    pm.response.to.have.status(200);\n});\n\n// 2. Validate that multiple favorite clicks do not artificially inflate the count\npm.test(\"Favorites count remains stable on duplicate favorite actions\", function () {\n    const responseData = pm.response.json();\n    \n    const actualCount = responseData.article.favoritesCount;\n    const expectedBaseline = pm.collectionVariables.set(\"baselineFavoritesCount\", actualCount);\n    \n    if (expectedBaseline !== undefined && expectedBaseline !== null) {\n        pm.expect(actualCount).to.equal(expectedBaseline);\n    }\n});\n"
+                      "let currentCount = parseInt(pm.environment.get(\"loopCounter\"));\nconst maxExecutions = 5;\n\nconsole.log(`Execution ${currentCount} of ${maxExecutions}`);\n\nif (currentCount < maxExecutions) {\n    // Increment the counter\n    pm.environment.set(\"loopCounter\", currentCount + 1);\n    \n    // Tell Postman to execute this same request again\n    pm.execution.setNextRequest(pm.info.requestId);\n} else {\n    // Clean up variable after 5 iterations\n    pm.environment.unset(\"loopCounter\");\n    console.log(\"Completed 5 executions.\");\n}\n\n// 1. Check if the status code is 200\npm.test(\"Status code is 200\", function () {\n    pm.response.to.have.status(200);\n});\n\n// 2. Validate that multiple favorite clicks do not artificially inflate the count\npm.test(\"Favorites count remains stable on duplicate favorite actions\", function () {\n    const responseData = pm.response.json();\n    \n    const actualCount = responseData.article.favoritesCount;\n    const expectedBaseline = pm.environment.set(\"baselineFavoritesCount\", actualCount);\n    \n    if (expectedBaseline !== undefined && expectedBaseline !== null) {\n        pm.expect(actualCount).to.equal(expectedBaseline);\n    }\n});\n"
                     ]
                   }
                 },
@@ -2100,7 +2129,7 @@
                   "script": {
                     "type": "text/javascript",
                     "exec": [
-                      "// Initialize counter to 1 if it doesn't exist yet\nif (!pm.collectionVariables.get(\"loopCounter\")) {\n    pm.collectionVariables.set(\"loopCounter\", 1);\n}"
+                      "// Initialize counter to 1 if it doesn't exist yet\nif (!pm.environment.get(\"loopCounter\")) {\n    pm.environment.set(\"loopCounter\", 1);\n}"
                     ]
                   }
                 }
@@ -2140,7 +2169,7 @@
                   "variable": [
                     {
                       "key": "slug",
-                      "value": "{{slug}}"
+                      "value": "{{updatedTitleSlug}}"
                     }
                   ]
                 }
@@ -2270,7 +2299,7 @@
                   "script": {
                     "type": "text/javascript",
                     "exec": [
-                      "// Generate unique identifiers\nconst number = Math.floor(Math.random() * 10000) + 1;\nconst comment = \"Edge Case Automation comment \" + number;\npm.collectionVariables.set(\"edgeCaseComment\", comment);"
+                      "// Generate unique identifiers\nconst number = Math.floor(Math.random() * 10000) + 1;\nconst comment = \"Edge Case Automation comment \" + number;\npm.environment.set(\"edgeCaseComment\", comment);"
                     ]
                   }
                 },
@@ -2334,7 +2363,7 @@
                   "script": {
                     "type": "text/javascript",
                     "exec": [
-                      "// Generate unique identifiers\nconst number = Math.floor(Math.random() * 10000) + 1;\nconst comment = \"Edge Case Automation comment \" + number;\npm.collectionVariables.set(\"edgeCaseComment\", comment);"
+                      "// Generate unique identifiers\nconst number = Math.floor(Math.random() * 10000) + 1;\nconst comment = \"Edge Case Automation comment \" + number;\npm.environment.set(\"edgeCaseComment\", comment);"
                     ]
                   }
                 },
@@ -2398,7 +2427,7 @@
                   "script": {
                     "type": "text/javascript",
                     "exec": [
-                      "// Generate unique identifiers\nconst number = Math.floor(Math.random() * 10000) + 1;\nconst comment = \"Edge Case Automation comment \" + number;\npm.collectionVariables.set(\"edgeCaseComment\", comment);"
+                      "// Generate unique identifiers\nconst number = Math.floor(Math.random() * 10000) + 1;\nconst comment = \"Edge Case Automation comment \" + number;\npm.environment.set(\"edgeCaseComment\", comment);"
                     ]
                   }
                 },
@@ -2473,7 +2502,7 @@
                   "bearer": [
                     {
                       "key": "token",
-                      "value": "{{readerToken}}",
+                      "value": "{{anotherUserToken}}",
                       "type": "string"
                     }
                   ]
@@ -2619,7 +2648,7 @@
                   "script": {
                     "type": "text/javascript",
                     "exec": [
-                      "let currentCount = parseInt(pm.collectionVariables.get(\"loopCounter\"));\nconst maxExecutions = 5;\n\nconsole.log(`Execution ${currentCount} of ${maxExecutions}`);\n\nif (currentCount < maxExecutions) {\n    // Increment the counter\n    pm.collectionVariables.set(\"loopCounter\", currentCount + 1);\n    \n    // Tell Postman to execute this same request again\n    pm.execution.setNextRequest(pm.info.requestId);\n} else {\n    // Clean up variable after 5 iterations\n    pm.collectionVariables.unset(\"loopCounter\");\n    console.log(\"Completed 5 executions.\");\n}\n\n// 1. Check if the status code is 200\npm.test(\"Status code is 200\", function () {\n    pm.response.to.have.status(200);\n});\n\n// 2. Validate that multiple favorite clicks do not artificially inflate the count\npm.test(\"Followers count remains stable on duplicate follow actions\", function () {\n    const responseData = pm.response.json();\n    \n    const actualFollowCount = responseData.profile.followersCount;\n    const expectedFollowCount = pm.collectionVariables.set(\"baselineFollowCount\", actualFollowCount);\n    \n    if (expectedFollowCount !== undefined && expectedFollowCount !== null) {\n        pm.expect(actualFollowCount).to.equal(expectedFollowCount);\n    }\n});"
+                      "let currentCount = parseInt(pm.environment.get(\"loopCounter\"));\nconst maxExecutions = 5;\n\nconsole.log(`Execution ${currentCount} of ${maxExecutions}`);\n\nif (currentCount < maxExecutions) {\n    // Increment the counter\n    pm.environment.set(\"loopCounter\", currentCount + 1);\n    \n    // Tell Postman to execute this same request again\n    pm.execution.setNextRequest(pm.info.requestId);\n} else {\n    // Clean up variable after 5 iterations\n    pm.environment.unset(\"loopCounter\");\n    console.log(\"Completed 5 executions.\");\n}\n\n// 1. Check if the status code is 200\npm.test(\"Status code is 200\", function () {\n    pm.response.to.have.status(200);\n});\n\n// 2. Validate that multiple favorite clicks do not artificially inflate the count\npm.test(\"Followers count remains stable on duplicate follow actions\", function () {\n    const responseData = pm.response.json();\n    \n    const actualFollowCount = responseData.profile.followersCount;\n    const expectedFollowCount = pm.environment.set(\"baselineFollowCount\", actualFollowCount);\n    \n    if (expectedFollowCount !== undefined && expectedFollowCount !== null) {\n        pm.expect(actualFollowCount).to.equal(expectedFollowCount);\n    }\n});"
                     ]
                   }
                 },
@@ -2628,7 +2657,7 @@
                   "script": {
                     "type": "text/javascript",
                     "exec": [
-                      "// Initialize counter to 1 if it doesn't exist yet\nif (!pm.collectionVariables.get(\"loopCounter\")) {\n    pm.collectionVariables.set(\"loopCounter\", 1);\n}"
+                      "// Initialize counter to 1 if it doesn't exist yet\nif (!pm.environment.get(\"loopCounter\")) {\n    pm.environment.set(\"loopCounter\", 1);\n}"
                     ]
                   }
                 }
@@ -2659,7 +2688,7 @@
                   "variable": [
                     {
                       "key": "username",
-                      "value": "{{authorUsername}}"
+                      "value": "{{anotherUsername}}"
                     }
                   ]
                 }
@@ -2730,7 +2759,7 @@
                   "script": {
                     "type": "text/javascript",
                     "exec": [
-                      "// Generate unique identifiers\nconst number = Math.floor(Math.random() * 10000) + 1;\nconst username = \"qa_user_\" + number;\nconst email = \"qa_user_\" + number + \"@gmail.com\";\n\n// Set collection variables dynamically\npm.collectionVariables.set(\"dynamicUsername\", username);\npm.collectionVariables.set(\"dynamicEmail\", email);\n\nconsole.log(\"Registering test user: \" + username);"
+                      "// Generate unique identifiers\nconst number = Math.floor(Math.random() * 10000) + 1;\nconst username = \"qa_user_\" + number;\nconst email = \"qa_user_\" + number + \"@gmail.com\";\n\n// Set collection variables dynamically\npm.environment.set(\"dynamicUsername\", username);\npm.environment.set(\"dynamicEmail\", email);\n\nconsole.log(\"Registering test user: \" + username);"
                     ]
                   }
                 },
@@ -2739,7 +2768,7 @@
                   "script": {
                     "type": "text/javascript",
                     "exec": [
-                      "// 1. Validate HTTP Status Code\npm.test(\"Status code is 201 Created\", function () {\n    pm.response.to.have.status(201);\n});\n\n// 2. Parse response and extract JWT\nconst responseData = pm.response.json();\n\npm.test(\"Response contains user object and token\", function () {\n    pm.expect(responseData).to.have.property(\"user\");\n    pm.expect(responseData.user).to.have.property(\"token\");\n    pm.expect(responseData.user.username).to.eql(pm.collectionVariables.get(\"dynamicUsername\"));\n});"
+                      "// 1. Validate HTTP Status Code\npm.test(\"Status code is 201 Created\", function () {\n    pm.response.to.have.status(201);\n});\n\n// 2. Parse response and extract JWT\nconst responseData = pm.response.json();\n\npm.test(\"Response contains user object and token\", function () {\n    pm.expect(responseData).to.have.property(\"user\");\n    pm.expect(responseData.user).to.have.property(\"token\");\n    pm.expect(responseData.user.username).to.eql(pm.environment.get(\"dynamicUsername\"));\n});"
                     ]
                   }
                 }
@@ -2776,7 +2805,7 @@
                   "script": {
                     "type": "text/javascript",
                     "exec": [
-                      "// 1. Validate HTTP Status Code\npm.test(\"Status code is 200 Created\", function () {\n    pm.response.to.have.status(200);\n});\n\n// 2. Parse response\nconst responseData = pm.response.json();\n\npm.test(\"Response contains user object and token\", function () {\n    pm.expect(responseData).to.have.property(\"user\");\n    pm.expect(responseData.user).to.have.property(\"token\");\n});\n\npm.test(\"Authenticated user details match registration\", function () {\n    const expectedEmail = pm.collectionVariables.get(\"dynamicEmail\");\n    const expectedUsername = pm.collectionVariables.get(\"dynamicUsername\");\n\n    pm.expect(responseData.user.email).to.eql(expectedEmail);\n    pm.expect(responseData.user.username).to.eql(expectedUsername);\n});\n\n// 3. Store JWT into collection variable for downstream requests\nif (responseData.user && responseData.user.token) {\n    pm.collectionVariables.set(\"userToken\", responseData.user.token);\n    console.log(\"Auth Token successfully stored.\");\n}"
+                      "// 1. Validate HTTP Status Code\npm.test(\"Status code is 200 Created\", function () {\n    pm.response.to.have.status(200);\n});\n\n// 2. Parse response\nconst responseData = pm.response.json();\n\npm.test(\"Response contains user object and token\", function () {\n    pm.expect(responseData).to.have.property(\"user\");\n    pm.expect(responseData.user).to.have.property(\"token\");\n});\n\npm.test(\"Authenticated user details match registration\", function () {\n    const expectedEmail = pm.environment.get(\"dynamicEmail\");\n    const expectedUsername = pm.environment.get(\"dynamicUsername\");\n\n    pm.expect(responseData.user.email).to.eql(expectedEmail);\n    pm.expect(responseData.user.username).to.eql(expectedUsername);\n});\n\n// 3. Store JWT into collection variable for downstream requests\nif (responseData.user && responseData.user.token) {\n    pm.environment.set(\"userToken\", responseData.user.token);\n    console.log(\"Auth Token successfully stored.\");\n}"
                     ]
                   }
                 }
@@ -2814,7 +2843,7 @@
                   "script": {
                     "type": "text/javascript",
                     "exec": [
-                      "pm.test(\"Status code is 200 OK\", function () {\n    pm.response.to.have.status(200);\n});\n\npm.test(\"Authenticated user details match registration\", function () {\n    const responseData = pm.response.json();\n    const expectedEmail = pm.collectionVariables.get(\"dynamicEmail\");\n    const expectedUsername = pm.collectionVariables.get(\"dynamicUsername\");\n\n    pm.expect(responseData.user.email).to.eql(expectedEmail);\n    pm.expect(responseData.user.username).to.eql(expectedUsername);\n});"
+                      "pm.test(\"Status code is 200 OK\", function () {\n    pm.response.to.have.status(200);\n});\n\npm.test(\"Authenticated user details match registration\", function () {\n    const responseData = pm.response.json();\n    const expectedEmail = pm.environment.get(\"dynamicEmail\");\n    const expectedUsername = pm.environment.get(\"dynamicUsername\");\n\n    pm.expect(responseData.user.email).to.eql(expectedEmail);\n    pm.expect(responseData.user.username).to.eql(expectedUsername);\n});"
                     ]
                   }
                 }
@@ -2832,15 +2861,6 @@
                 },
                 "method": "GET",
                 "header": [],
-                "body": {
-                  "mode": "raw",
-                  "raw": "",
-                  "options": {
-                    "raw": {
-                      "language": "json"
-                    }
-                  }
-                },
                 "url": {
                   "raw": "{{baseUrl}}/user",
                   "host": [
@@ -2861,7 +2881,7 @@
                   "script": {
                     "type": "text/javascript",
                     "exec": [
-                      "// Generate unique identifiers using timestamps\nconst number = Math.floor(Math.random() * 10000) + 1;\nconst bio = \"This is a test bio-\" + number;\nconst image = \"image-\" + number + \".png\";\n\n// Set collection variables dynamically\npm.collectionVariables.set(\"dynamicBio\", bio);\npm.collectionVariables.set(\"dynamicImage\", image);\n\nconsole.log(\"Profile updated!!\");"
+                      "// Generate unique identifiers using timestamps\nconst number = Math.floor(Math.random() * 10000) + 1;\nconst bio = \"This is a test bio-\" + number;\nconst image = \"image-\" + number + \".png\";\n\n// Set collection variables dynamically\npm.environment.set(\"dynamicBio\", bio);\npm.environment.set(\"dynamicImage\", image);\n\nconsole.log(\"Profile updated!!\");"
                     ]
                   }
                 },
@@ -2870,7 +2890,7 @@
                   "script": {
                     "type": "text/javascript",
                     "exec": [
-                      "pm.test(\"Status code is 200 OK\", function () {\n    pm.response.to.have.status(200);\n});\n\npm.test(\"Updated user details match information submitted\", function () {\n    const responseData = pm.response.json();\n    const expectedBio = pm.collectionVariables.get(\"dynamicBio\");\n    const expectedImage = pm.collectionVariables.get(\"dynamicImage\");\n\n    pm.expect(responseData.user.bio).to.eql(expectedBio);\n    pm.expect(responseData.user.image).to.eql(expectedImage);\n});"
+                      "pm.test(\"Status code is 200 OK\", function () {\n    pm.response.to.have.status(200);\n});\n\npm.test(\"Updated user details match information submitted\", function () {\n    const responseData = pm.response.json();\n    const expectedBio = pm.environment.get(\"dynamicBio\");\n    const expectedImage = pm.environment.get(\"dynamicImage\");\n\n    pm.expect(responseData.user.bio).to.eql(expectedBio);\n    pm.expect(responseData.user.image).to.eql(expectedImage);\n});"
                     ]
                   }
                 }
@@ -2917,7 +2937,7 @@
                   "script": {
                     "type": "text/javascript",
                     "exec": [
-                      "pm.test(\"Status code is 200 OK\", function () {\n    pm.response.to.have.status(200);\n});\n\npm.test(\"Public profile contains updated bio and image\", function () {\n    const responseData = pm.response.json();\n    pm.expect(responseData.profile.username).to.eql(pm.collectionVariables.get(\"dynamicUsername\"));\n    pm.expect(responseData.profile.bio).to.eql(pm.collectionVariables.get(\"dynamicBio\"));\n    pm.expect(responseData.profile.image).to.eql(pm.collectionVariables.get(\"dynamicImage\"));\n});"
+                      "pm.test(\"Status code is 200 OK\", function () {\n    pm.response.to.have.status(200);\n});\n\npm.test(\"Public profile contains updated bio and image\", function () {\n    const responseData = pm.response.json();\n    pm.expect(responseData.profile.username).to.eql(pm.environment.get(\"dynamicUsername\"));\n    pm.expect(responseData.profile.bio).to.eql(pm.environment.get(\"dynamicBio\"));\n    pm.expect(responseData.profile.image).to.eql(pm.environment.get(\"dynamicImage\"));\n});"
                     ]
                   }
                 }
@@ -2925,15 +2945,6 @@
               "request": {
                 "method": "GET",
                 "header": [],
-                "body": {
-                  "mode": "raw",
-                  "raw": "",
-                  "options": {
-                    "raw": {
-                      "language": "json"
-                    }
-                  }
-                },
                 "url": {
                   "raw": "{{baseUrl}}/profiles/:username",
                   "host": [
@@ -2966,7 +2977,7 @@
                   "script": {
                     "type": "text/javascript",
                     "exec": [
-                      "// Generate unique identifiers\nconst number = Math.floor(Math.random() * 10000) + 1;\nconst articleTitle = \"API Automation Best Practices \" + number;\nconst articleDescription = \"Article description \" + number;\nconst articleBody = \"Article body \" + number;\n\npm.collectionVariables.set(\"initialTitle\", articleTitle);\npm.collectionVariables.set(\"initialDescription\", articleDescription);\npm.collectionVariables.set(\"initialBody\", articleBody);\nconsole.log(\"Generated Article: \" + articleTitle);"
+                      "// Generate unique identifiers\nconst number = Math.floor(Math.random() * 10000) + 1;\nconst articleTitle = \"API Automation Best Practices \" + number;\nconst articleDescription = \"Article description \" + number;\nconst articleBody = \"Article body \" + number;\n\npm.environment.set(\"initialTitle\", articleTitle);\npm.environment.set(\"initialDescription\", articleDescription);\npm.environment.set(\"initialBody\", articleBody);\nconsole.log(\"Generated Article: \" + articleTitle);"
                     ]
                   }
                 },
@@ -2975,7 +2986,7 @@
                   "script": {
                     "type": "text/javascript",
                     "exec": [
-                      "pm.test(\"Status code is 201\", function () {\n    pm.response.to.have.status(201);\n});\n\nconst responseData = pm.response.json();\n\npm.test(\"Article created with correct attributes\", function () {\n    pm.expect(responseData.article).to.have.property(\"slug\");\n    pm.expect(responseData.article).to.have.property(\"title\");\n    pm.expect(responseData.article).to.have.property(\"description\");\n    pm.expect(responseData.article).to.have.property(\"body\");\n});\n\npm.test(\"Article has correct information\", function () {\n    pm.expect(responseData.article.title).to.eql(pm.collectionVariables.get(\"initialTitle\"));\n    pm.expect(responseData.article.description).to.eql(pm.collectionVariables.get(\"initialDescription\"));\n    pm.expect(responseData.article.body).to.eql(pm.collectionVariables.get(\"initialBody\"));\n    pm.expect(responseData.article.tagList).to.include(\"Automation\");\n});\n\n// Capture generated slug for chaining\nif (responseData.article && responseData.article.slug) {\n    pm.collectionVariables.set(\"articleSlug\", responseData.article.slug);\n    console.log(\"Captured Slug: \" + responseData.article.slug);\n}"
+                      "pm.test(\"Status code is 201\", function () {\n    pm.response.to.have.status(201);\n});\n\nconst responseData = pm.response.json();\n\npm.test(\"Article created with correct attributes\", function () {\n    pm.expect(responseData.article).to.have.property(\"slug\");\n    pm.expect(responseData.article).to.have.property(\"title\");\n    pm.expect(responseData.article).to.have.property(\"description\");\n    pm.expect(responseData.article).to.have.property(\"body\");\n});\n\npm.test(\"Article has correct information\", function () {\n    pm.expect(responseData.article.title).to.eql(pm.environment.get(\"initialTitle\"));\n    pm.expect(responseData.article.description).to.eql(pm.environment.get(\"initialDescription\"));\n    pm.expect(responseData.article.body).to.eql(pm.environment.get(\"initialBody\"));\n    pm.expect(responseData.article.tagList).to.include(\"Automation\");\n});\n\n// Capture generated slug for chaining\nif (responseData.article && responseData.article.slug) {\n    pm.environment.set(\"articleSlug\", responseData.article.slug);\n    console.log(\"Captured Slug: \" + responseData.article.slug);\n}"
                     ]
                   }
                 }
@@ -3022,7 +3033,7 @@
                   "script": {
                     "type": "text/javascript",
                     "exec": [
-                      "pm.test(\"Status code is 200 OK\", function () {\n    pm.response.to.have.status(200);\n});\n\npm.test(\"Retrieved article matches created article\", function () {\n    const responseData = pm.response.json();\n    pm.expect(responseData.article.slug).to.eql(pm.collectionVariables.get(\"articleSlug\"));\n    pm.expect(responseData.article.title).to.eql(pm.collectionVariables.get(\"initialTitle\"));\n});"
+                      "pm.test(\"Status code is 200 OK\", function () {\n    pm.response.to.have.status(200);\n});\n\npm.test(\"Retrieved article matches created article\", function () {\n    const responseData = pm.response.json();\n    pm.expect(responseData.article.slug).to.eql(pm.environment.get(\"articleSlug\"));\n    pm.expect(responseData.article.title).to.eql(pm.environment.get(\"initialTitle\"));\n});"
                     ]
                   }
                 }
@@ -3030,15 +3041,6 @@
               "request": {
                 "method": "GET",
                 "header": [],
-                "body": {
-                  "mode": "raw",
-                  "raw": "",
-                  "options": {
-                    "raw": {
-                      "language": "json"
-                    }
-                  }
-                },
                 "url": {
                   "raw": "{{baseUrl}}/articles/:slug",
                   "host": [
@@ -3083,7 +3085,7 @@
                   "script": {
                     "type": "text/javascript",
                     "exec": [
-                      "const number = Math.floor(Math.random() * 10000) + 1;\nconst updatedTitle = \"Updated API Automation Best Practices \" + number;\n\npm.collectionVariables.set(\"newTitle\", updatedTitle);"
+                      "const number = Math.floor(Math.random() * 10000) + 1;\nconst updatedTitle = \"Updated API Automation Best Practices \" + number;\n\npm.environment.set(\"newTitle\", updatedTitle);"
                     ]
                   }
                 },
@@ -3092,7 +3094,7 @@
                   "script": {
                     "type": "text/javascript",
                     "exec": [
-                      "pm.test(\"Status code is 200 OK\", function () {\n    pm.response.to.have.status(200);\n});\n\nconst responseData = pm.response.json();\n\npm.test(\"Article title and slug updated successfully\", function () {\n    pm.expect(responseData.article.title).to.eql(pm.collectionVariables.get(\"newTitle\"));\n    pm.expect(responseData.article.slug).to.not.eql(pm.collectionVariables.get(\"articleSlug\"));\n});\n\n// Store new slug for subsequent checks\nif (responseData.article && responseData.article.slug) {\n    pm.collectionVariables.set(\"updatedSlug\", responseData.article.slug);\n    console.log(\"New Synced Slug: \" + responseData.article.slug);\n}"
+                      "pm.test(\"Status code is 200 OK\", function () {\n    pm.response.to.have.status(200);\n});\n\nconst responseData = pm.response.json();\n\npm.test(\"Article title and slug updated successfully\", function () {\n    pm.expect(responseData.article.title).to.eql(pm.environment.get(\"newTitle\"));\n    pm.expect(responseData.article.slug).to.not.eql(pm.environment.get(\"articleSlug\"));\n});\n\n// Store new slug for subsequent checks\nif (responseData.article && responseData.article.slug) {\n    pm.environment.set(\"updatedSlug\", responseData.article.slug);\n    console.log(\"New Synced Slug: \" + responseData.article.slug);\n}"
                     ]
                   }
                 }
@@ -3171,15 +3173,6 @@
               "request": {
                 "method": "GET",
                 "header": [],
-                "body": {
-                  "mode": "raw",
-                  "raw": "",
-                  "options": {
-                    "raw": {
-                      "language": "json"
-                    }
-                  }
-                },
                 "url": {
                   "raw": "{{baseUrl}}/articles/:slug",
                   "host": [
@@ -3224,7 +3217,7 @@
                   "script": {
                     "type": "text/javascript",
                     "exec": [
-                      "pm.test(\"Status code is 200 OK\", function () {\n    pm.response.to.have.status(200);\n});\n\npm.test(\"New slug retrieves updated article content\", function () {\n    const responseData = pm.response.json();\n    pm.expect(responseData.article.slug).to.eql(pm.collectionVariables.get(\"updatedSlug\"));\n    pm.expect(responseData.article.title).to.eql(pm.collectionVariables.get(\"newTitle\"));\n});"
+                      "pm.test(\"Status code is 200 OK\", function () {\n    pm.response.to.have.status(200);\n});\n\npm.test(\"New slug retrieves updated article content\", function () {\n    const responseData = pm.response.json();\n    pm.expect(responseData.article.slug).to.eql(pm.environment.get(\"updatedSlug\"));\n    pm.expect(responseData.article.title).to.eql(pm.environment.get(\"newTitle\"));\n});"
                     ]
                   }
                 }
@@ -3232,15 +3225,6 @@
               "request": {
                 "method": "GET",
                 "header": [],
-                "body": {
-                  "mode": "raw",
-                  "raw": "",
-                  "options": {
-                    "raw": {
-                      "language": "json"
-                    }
-                  }
-                },
                 "url": {
                   "raw": "{{baseUrl}}/articles/:slug",
                   "host": [
@@ -3330,15 +3314,6 @@
               "request": {
                 "method": "GET",
                 "header": [],
-                "body": {
-                  "mode": "raw",
-                  "raw": "",
-                  "options": {
-                    "raw": {
-                      "language": "json"
-                    }
-                  }
-                },
                 "url": {
                   "raw": "{{baseUrl}}/articles/:slug",
                   "host": [
@@ -3371,7 +3346,7 @@
                   "script": {
                     "type": "text/javascript",
                     "exec": [
-                      "// Generate unique identifiers\nconst number = Math.floor(Math.random() * 10000) + 1;\nconst articleTitle = \"API Automation Best Practices \" + number;\nconst articleDescription = \"Article description \" + number;\nconst articleBody = \"Article body \" + number;\n\npm.collectionVariables.set(\"initialTitle\", articleTitle);\npm.collectionVariables.set(\"initialDescription\", articleDescription);\npm.collectionVariables.set(\"initialBody\", articleBody);\nconsole.log(\"Generated Article: \" + articleTitle);"
+                      "// Generate unique identifiers\nconst number = Math.floor(Math.random() * 10000) + 1;\nconst articleTitle = \"API Automation Best Practices \" + number;\nconst articleDescription = \"Article description \" + number;\nconst articleBody = \"Article body \" + number;\n\npm.environment.set(\"initialTitle\", articleTitle);\npm.environment.set(\"initialDescription\", articleDescription);\npm.environment.set(\"initialBody\", articleBody);\nconsole.log(\"Generated Article: \" + articleTitle);"
                     ]
                   }
                 },
@@ -3380,7 +3355,7 @@
                   "script": {
                     "type": "text/javascript",
                     "exec": [
-                      "pm.test(\"Status code is 201\", function () {\n    pm.response.to.have.status(201);\n});\n\nconst responseData = pm.response.json();\n\npm.test(\"Article created with correct attributes\", function () {\n    pm.expect(responseData.article).to.have.property(\"slug\");\n    pm.expect(responseData.article).to.have.property(\"title\");\n    pm.expect(responseData.article).to.have.property(\"description\");\n    pm.expect(responseData.article).to.have.property(\"body\");\n});\n\npm.test(\"Article has correct information\", function () {\n    pm.expect(responseData.article.title).to.eql(pm.collectionVariables.get(\"initialTitle\"));\n    pm.expect(responseData.article.description).to.eql(pm.collectionVariables.get(\"initialDescription\"));\n    pm.expect(responseData.article.body).to.eql(pm.collectionVariables.get(\"initialBody\"));\n    pm.expect(responseData.article.tagList).to.include(\"Automation\");\n});\n\n// Capture generated slug for chaining\nif (responseData.article && responseData.article.slug) {\n    pm.collectionVariables.set(\"articleSlug\", responseData.article.slug);\n    console.log(\"Captured Slug: \" + responseData.article.slug);\n}"
+                      "pm.test(\"Status code is 201\", function () {\n    pm.response.to.have.status(201);\n});\n\nconst responseData = pm.response.json();\n\npm.test(\"Article created with correct attributes\", function () {\n    pm.expect(responseData.article).to.have.property(\"slug\");\n    pm.expect(responseData.article).to.have.property(\"title\");\n    pm.expect(responseData.article).to.have.property(\"description\");\n    pm.expect(responseData.article).to.have.property(\"body\");\n});\n\npm.test(\"Article has correct information\", function () {\n    pm.expect(responseData.article.title).to.eql(pm.environment.get(\"initialTitle\"));\n    pm.expect(responseData.article.description).to.eql(pm.environment.get(\"initialDescription\"));\n    pm.expect(responseData.article.body).to.eql(pm.environment.get(\"initialBody\"));\n    pm.expect(responseData.article.tagList).to.include(\"Automation\");\n});\n\n// Capture generated slug for chaining\nif (responseData.article && responseData.article.slug) {\n    pm.environment.set(\"articleSlug\", responseData.article.slug);\n    console.log(\"Captured Slug: \" + responseData.article.slug);\n}"
                     ]
                   }
                 }
@@ -3427,7 +3402,7 @@
                   "script": {
                     "type": "text/javascript",
                     "exec": [
-                      "// Generate unique identifiers\nconst number = Math.floor(Math.random() * 10000) + 1;\nconst comment = \"Automation comment \" + number;\npm.collectionVariables.set(\"articleComment\", comment);"
+                      "// Generate unique identifiers\nconst number = Math.floor(Math.random() * 10000) + 1;\nconst comment = \"Automation comment \" + number;\npm.environment.set(\"articleComment\", comment);"
                     ]
                   }
                 },
@@ -3436,7 +3411,7 @@
                   "script": {
                     "type": "text/javascript",
                     "exec": [
-                      "pm.test(\"Status code is 201\", function () {\n    pm.response.to.have.status(201);\n});\n\nconst responseData = pm.response.json();\n\npm.test(\"Comment created with valid ID and body\", function () {\n    pm.expect(responseData.comment).to.have.property(\"id\");\n    pm.expect(responseData.comment.body).to.eql(pm.collectionVariables.get(\"articleComment\"));\n    pm.expect(responseData.comment.author).to.have.property(\"username\");\n});\n\nif (responseData.comment && responseData.comment.id) {\n    pm.collectionVariables.set(\"commentId\", responseData.comment.id);\n    console.log(\"Captured Comment ID: \" + responseData.comment.id);\n}"
+                      "pm.test(\"Status code is 201\", function () {\n    pm.response.to.have.status(201);\n});\n\nconst responseData = pm.response.json();\n\npm.test(\"Comment created with valid ID and body\", function () {\n    pm.expect(responseData.comment).to.have.property(\"id\");\n    pm.expect(responseData.comment.body).to.eql(pm.environment.get(\"articleComment\"));\n    pm.expect(responseData.comment.author).to.have.property(\"username\");\n});\n\nif (responseData.comment && responseData.comment.id) {\n    pm.environment.set(\"commentId\", responseData.comment.id);\n    console.log(\"Captured Comment ID: \" + responseData.comment.id);\n}"
                     ]
                   }
                 }
@@ -3491,7 +3466,7 @@
                   "script": {
                     "type": "text/javascript",
                     "exec": [
-                      "pm.test(\"Status code is 200 OK\", function () {\n    pm.response.to.have.status(200);\n});\n\nconst responseData = pm.response.json();\n\npm.test(\"Comments list is non-empty and contains created comment ID\", function () {\n    pm.expect(responseData).to.have.property(\"comments\");\n    pm.expect(responseData.comments).to.be.an(\"array\").that.is.not.empty;\n\n    const targetId = pm.collectionVariables.get(\"commentId\");\n    const foundComment = responseData.comments.find(c => c.id === targetId);\n\n    pm.expect(foundComment).to.not.be.undefined;\n    pm.expect(foundComment.body).to.eql(pm.collectionVariables.get(\"articleComment\"));\n});"
+                      "pm.test(\"Status code is 200 OK\", function () {\n    pm.response.to.have.status(200);\n});\n\nconst responseData = pm.response.json();\n\npm.test(\"Comments list is non-empty and contains created comment ID\", function () {\n    pm.expect(responseData).to.have.property(\"comments\");\n    pm.expect(responseData.comments).to.be.an(\"array\").that.is.not.empty;\n\n    const targetId = pm.environment.get(\"commentId\");\n    const foundComment = responseData.comments.find(c => c.id === targetId);\n\n    pm.expect(foundComment).to.not.be.undefined;\n    pm.expect(foundComment.body).to.eql(pm.environment.get(\"articleComment\"));\n});"
                     ]
                   }
                 }
@@ -3502,15 +3477,6 @@
                 },
                 "method": "GET",
                 "header": [],
-                "body": {
-                  "mode": "raw",
-                  "raw": "",
-                  "options": {
-                    "raw": {
-                      "language": "json"
-                    }
-                  }
-                },
                 "url": {
                   "raw": "{{baseUrl}}/articles/:slug/comments",
                   "host": [
@@ -3599,7 +3565,7 @@
                   "script": {
                     "type": "text/javascript",
                     "exec": [
-                      "pm.test(\"Status code is 200 OK\", function () {\n    pm.response.to.have.status(200);\n});\n\nconst responseData = pm.response.json();\n\npm.test(\"Deleted comment ID is no longer present in comments array\", function () {\n    const deletedId = pm.collectionVariables.get(\"commentId\");\n    const foundComment = responseData.comments.find(c => c.id === deletedId);\n\n    pm.expect(foundComment).to.be.undefined;\n});"
+                      "pm.test(\"Status code is 200 OK\", function () {\n    pm.response.to.have.status(200);\n});\n\nconst responseData = pm.response.json();\n\npm.test(\"Deleted comment ID is no longer present in comments array\", function () {\n    const deletedId = pm.environment.get(\"commentId\");\n    const foundComment = responseData.comments.find(c => c.id === deletedId);\n\n    pm.expect(foundComment).to.be.undefined;\n});"
                     ]
                   }
                 }
@@ -3610,15 +3576,6 @@
                 },
                 "method": "GET",
                 "header": [],
-                "body": {
-                  "mode": "raw",
-                  "raw": "",
-                  "options": {
-                    "raw": {
-                      "language": "json"
-                    }
-                  }
-                },
                 "url": {
                   "raw": "{{baseUrl}}/articles/:slug/comments",
                   "host": [
@@ -3706,7 +3663,7 @@
                   "script": {
                     "type": "text/javascript",
                     "exec": [
-                      "// Generate unique identifiers\nconst number = Math.floor(Math.random() * 10000) + 1;\nconst authorName = \"author_\" + number;\nconst authorEmail = \"author_\" + number + \"@gmail.com\";\n\n// Set collection variables dynamically\npm.collectionVariables.set(\"authorUsername\", authorName);\npm.collectionVariables.set(\"authorEmail\", authorEmail);\n\nconsole.log(\"Creating Author: \" + authorName);"
+                      "// Generate unique identifiers\nconst number = Math.floor(Math.random() * 10000) + 1;\nconst authorName = \"author_\" + number;\nconst authorEmail = \"author_\" + number + \"@gmail.com\";\n\n// Set collection variables dynamically\npm.environment.set(\"authorUsername\", authorName);\npm.environment.set(\"authorEmail\", authorEmail);\n\nconsole.log(\"Creating Author: \" + authorName);"
                     ]
                   }
                 },
@@ -3715,7 +3672,7 @@
                   "script": {
                     "type": "text/javascript",
                     "exec": [
-                      "// 1. Validate HTTP Status Code\npm.test(\"Status code is 201 Created\", function () {\n    pm.response.to.have.status(201);\n});\n\n// 2. Parse response and extract JWT\nconst responseData = pm.response.json();\n\nif (responseData.user && responseData.user.token) {\n    pm.collectionVariables.set(\"authorToken\", responseData.user.token);\n    console.log(\"Author Token Saved.\");\n}"
+                      "// 1. Validate HTTP Status Code\npm.test(\"Status code is 201 Created\", function () {\n    pm.response.to.have.status(201);\n});\n\n// 2. Parse response and extract JWT\nconst responseData = pm.response.json();\n\nif (responseData.user && responseData.user.token) {\n    pm.environment.set(\"authorToken\", responseData.user.token);\n    console.log(\"Author Token Saved.\");\n}"
                     ]
                   }
                 }
@@ -3752,7 +3709,7 @@
                   "script": {
                     "type": "text/javascript",
                     "exec": [
-                      "// Generate unique identifiers\nconst number = Math.floor(Math.random() * 10000) + 1;\nconst readerName = \"reader\" + number;\nconst readerEmail = \"reader\" + number + \"@gmail.com\";\n\n// Set collection variables dynamically\npm.collectionVariables.set(\"readerUsername\", readerName);\npm.collectionVariables.set(\"readerEmail\", readerEmail);\n\nconsole.log(\"Creating Reader: \" + readerName);"
+                      "// Generate unique identifiers\nconst number = Math.floor(Math.random() * 10000) + 1;\nconst readerName = \"reader\" + number;\nconst readerEmail = \"reader\" + number + \"@gmail.com\";\n\n// Set collection variables dynamically\npm.environment.set(\"readerUsername\", readerName);\npm.environment.set(\"readerEmail\", readerEmail);\n\nconsole.log(\"Creating Reader: \" + readerName);"
                     ]
                   }
                 },
@@ -3761,7 +3718,7 @@
                   "script": {
                     "type": "text/javascript",
                     "exec": [
-                      "// 1. Validate HTTP Status Code\npm.test(\"Status code is 201 Created\", function () {\n    pm.response.to.have.status(201);\n});\n\n// 2. Parse response and extract JWT\nconst responseData = pm.response.json();\n\nif (responseData.user && responseData.user.token) {\n    pm.collectionVariables.set(\"readerToken\", responseData.user.token);\n    console.log(\"Reader Token Saved.\");\n}"
+                      "// 1. Validate HTTP Status Code\npm.test(\"Status code is 201 Created\", function () {\n    pm.response.to.have.status(201);\n});\n\n// 2. Parse response and extract JWT\nconst responseData = pm.response.json();\n\nif (responseData.user && responseData.user.token) {\n    pm.environment.set(\"readerToken\", responseData.user.token);\n    console.log(\"Reader Token Saved.\");\n}"
                     ]
                   }
                 }
@@ -3798,7 +3755,7 @@
                   "script": {
                     "type": "text/javascript",
                     "exec": [
-                      "// Generate unique identifiers\nconst number = Math.floor(Math.random() * 10000) + 1;\nconst feedArticleTitle = \"Feed article title \" + number;\nconst feedArticleDescription = \"Feed article description \" + number;\nconst feedArticleBody = \"Feed article body \" + number;\n\npm.collectionVariables.set(\"feedArticleTitle\", feedArticleTitle);\npm.collectionVariables.set(\"feedArticleDescription\", feedArticleDescription);\npm.collectionVariables.set(\"feedArticleBody\", feedArticleBody);\n\nconsole.log(\"Generated Article: \" + feedArticleTitle);"
+                      "// Generate unique identifiers\nconst number = Math.floor(Math.random() * 10000) + 1;\nconst feedArticleTitle = \"Feed article title \" + number;\nconst feedArticleDescription = \"Feed article description \" + number;\nconst feedArticleBody = \"Feed article body \" + number;\n\npm.environment.set(\"feedArticleTitle\", feedArticleTitle);\npm.environment.set(\"feedArticleDescription\", feedArticleDescription);\npm.environment.set(\"feedArticleBody\", feedArticleBody);\n\nconsole.log(\"Generated Article: \" + feedArticleTitle);"
                     ]
                   }
                 },
@@ -3807,7 +3764,7 @@
                   "script": {
                     "type": "text/javascript",
                     "exec": [
-                      "pm.test(\"Status code is 201\", function () {\n    pm.response.to.have.status(201);\n});\n\nconst responseData = pm.response.json();\n\nif (responseData.article && responseData.article.slug) {\n    pm.collectionVariables.set(\"feedArticleSlug\", responseData.article.slug);\n    console.log(\"Captured Slug: \" + responseData.article.slug);\n}"
+                      "pm.test(\"Status code is 201\", function () {\n    pm.response.to.have.status(201);\n});\n\nconst responseData = pm.response.json();\n\nif (responseData.article && responseData.article.slug) {\n    pm.environment.set(\"feedArticleSlug\", responseData.article.slug);\n    console.log(\"Captured Slug: \" + responseData.article.slug);\n}"
                     ]
                   }
                 }
@@ -3854,7 +3811,7 @@
                   "script": {
                     "type": "text/javascript",
                     "exec": [
-                      "pm.test(\"Status code is 200 OK\", function () {\n    pm.response.to.have.status(200);\n});\n\nconst responseData = pm.response.json();\n\npm.test(\"Reader feed does NOT contain author's article before following\", function () {\n    pm.expect(responseData).to.have.property(\"articles\");\n    \n    const targetSlug = pm.collectionVariables.get(\"feedArticleSlug\");\n    const foundArticle = responseData.articles.find(a => a.slug === targetSlug);\n\n    pm.expect(foundArticle).to.be.undefined;\n});"
+                      "pm.test(\"Status code is 200 OK\", function () {\n    pm.response.to.have.status(200);\n});\n\nconst responseData = pm.response.json();\n\npm.test(\"Reader feed does NOT contain author's article before following\", function () {\n    pm.expect(responseData).to.have.property(\"articles\");\n    \n    const targetSlug = pm.environment.get(\"feedArticleSlug\");\n    const foundArticle = responseData.articles.find(a => a.slug === targetSlug);\n\n    pm.expect(foundArticle).to.be.undefined;\n});"
                     ]
                   }
                 }
@@ -3872,15 +3829,6 @@
                 },
                 "method": "GET",
                 "header": [],
-                "body": {
-                  "mode": "raw",
-                  "raw": "",
-                  "options": {
-                    "raw": {
-                      "language": "json"
-                    }
-                  }
-                },
                 "url": {
                   "raw": "{{baseUrl}}/articles/feed",
                   "host": [
@@ -3902,7 +3850,7 @@
                   "script": {
                     "type": "text/javascript",
                     "exec": [
-                      "pm.test(\"Status code is 200 OK\", function () {\n    pm.response.to.have.status(200);\n});\n\nconst responseData = pm.response.json();\n\npm.test(\"Profile following status updated to true\", function () {\n    pm.expect(responseData).to.have.property(\"profile\");\n    pm.expect(responseData.profile.username).to.eql(pm.collectionVariables.get(\"authorUsername\"));\n    pm.expect(responseData.profile.following).to.be.true;\n});"
+                      "pm.test(\"Status code is 200 OK\", function () {\n    pm.response.to.have.status(200);\n});\n\nconst responseData = pm.response.json();\n\npm.test(\"Profile following status updated to true\", function () {\n    pm.expect(responseData).to.have.property(\"profile\");\n    pm.expect(responseData.profile.username).to.eql(pm.environment.get(\"authorUsername\"));\n    pm.expect(responseData.profile.following).to.be.true;\n});"
                     ]
                   }
                 }
@@ -3957,7 +3905,7 @@
                   "script": {
                     "type": "text/javascript",
                     "exec": [
-                      "pm.test(\"Status code is 200 OK\", function () {\n    pm.response.to.have.status(200);\n});\n\nconst responseData = pm.response.json();\n\npm.test(\"Reader feed contains author's article after following\", function () {\n    pm.expect(responseData).to.have.property(\"articles\");\n    \n    const targetSlug = pm.collectionVariables.get(\"feedArticleSlug\");\n    const foundArticle = responseData.articles.find(a => a.slug === targetSlug);\n\n    pm.expect(foundArticle).to.not.be.undefined;\n    pm.expect(foundArticle.author.username).to.eql(pm.collectionVariables.get(\"authorUsername\"));\n});"
+                      "pm.test(\"Status code is 200 OK\", function () {\n    pm.response.to.have.status(200);\n});\n\nconst responseData = pm.response.json();\n\npm.test(\"Reader feed contains author's article after following\", function () {\n    pm.expect(responseData).to.have.property(\"articles\");\n    \n    const targetSlug = pm.environment.get(\"feedArticleSlug\");\n    const foundArticle = responseData.articles.find(a => a.slug === targetSlug);\n\n    pm.expect(foundArticle).to.not.be.undefined;\n    pm.expect(foundArticle.author.username).to.eql(pm.environment.get(\"authorUsername\"));\n});"
                     ]
                   }
                 }
@@ -3975,15 +3923,6 @@
                 },
                 "method": "GET",
                 "header": [],
-                "body": {
-                  "mode": "raw",
-                  "raw": "",
-                  "options": {
-                    "raw": {
-                      "language": "json"
-                    }
-                  }
-                },
                 "url": {
                   "raw": "{{baseUrl}}/articles/feed",
                   "host": [
@@ -4060,7 +3999,7 @@
                   "script": {
                     "type": "text/javascript",
                     "exec": [
-                      "pm.test(\"Status code is 200 OK\", function () {\n    pm.response.to.have.status(200);\n});\n\nconst responseData = pm.response.json();\n\npm.test(\"Reader feed does NOT contain author's article before following\", function () {\n    pm.expect(responseData).to.have.property(\"articles\");\n    \n    const targetSlug = pm.collectionVariables.get(\"feedArticleSlug\");\n    const foundArticle = responseData.articles.find(a => a.slug === targetSlug);\n\n    pm.expect(foundArticle).to.be.undefined;\n});"
+                      "pm.test(\"Status code is 200 OK\", function () {\n    pm.response.to.have.status(200);\n});\n\nconst responseData = pm.response.json();\n\npm.test(\"Reader feed does NOT contain author's article before following\", function () {\n    pm.expect(responseData).to.have.property(\"articles\");\n    \n    const targetSlug = pm.environment.get(\"feedArticleSlug\");\n    const foundArticle = responseData.articles.find(a => a.slug === targetSlug);\n\n    pm.expect(foundArticle).to.be.undefined;\n});"
                     ]
                   }
                 }
@@ -4078,15 +4017,6 @@
                 },
                 "method": "GET",
                 "header": [],
-                "body": {
-                  "mode": "raw",
-                  "raw": "",
-                  "options": {
-                    "raw": {
-                      "language": "json"
-                    }
-                  }
-                },
                 "url": {
                   "raw": "{{baseUrl}}/articles/feed",
                   "host": [
@@ -4167,7 +4097,7 @@
                   "script": {
                     "type": "text/javascript",
                     "exec": [
-                      "// Generate unique identifiers\nconst number = Math.floor(Math.random() * 10000) + 1;\nconst likedArticleTitle = \"Liked article title \" + number;\nconst likedArticleDescription = \"Liked article description \" + number;\nconst likedArticleBody = \"Liked article body \" + number;\n\npm.collectionVariables.set(\"likedArticleTitle\", likedArticleTitle);\npm.collectionVariables.set(\"likedArticleDescription\", likedArticleDescription);\npm.collectionVariables.set(\"likedArticleBody\", likedArticleBody);\n\nconsole.log(\"Generated Article: \" + likedArticleTitle);"
+                      "// Generate unique identifiers\nconst number = Math.floor(Math.random() * 10000) + 1;\nconst likedArticleTitle = \"Liked article title \" + number;\nconst likedArticleDescription = \"Liked article description \" + number;\nconst likedArticleBody = \"Liked article body \" + number;\n\npm.environment.set(\"likedArticleTitle\", likedArticleTitle);\npm.environment.set(\"likedArticleDescription\", likedArticleDescription);\npm.environment.set(\"likedArticleBody\", likedArticleBody);\n\nconsole.log(\"Generated Article: \" + likedArticleTitle);"
                     ]
                   }
                 },
@@ -4176,7 +4106,7 @@
                   "script": {
                     "type": "text/javascript",
                     "exec": [
-                      "pm.test(\"Status code is 201\", function () {\n    pm.response.to.have.status(201);\n});\n\nconst responseData = pm.response.json();\n\nif (responseData.article && responseData.article.slug) {\n    pm.collectionVariables.set(\"likedArticleSlug\", responseData.article.slug);\n    console.log(\"Captured Slug: \" + responseData.article.slug);\n}"
+                      "pm.test(\"Status code is 201\", function () {\n    pm.response.to.have.status(201);\n});\n\nconst responseData = pm.response.json();\n\nif (responseData.article && responseData.article.slug) {\n    pm.environment.set(\"likedArticleSlug\", responseData.article.slug);\n    console.log(\"Captured Slug: \" + responseData.article.slug);\n}"
                     ]
                   }
                 }
@@ -4278,7 +4208,7 @@
                   "script": {
                     "type": "text/javascript",
                     "exec": [
-                      "pm.test(\"Status code is 200 OK\", function () {\n    pm.response.to.have.status(200);\n});\n\npm.test(\"Article appears in filtered favorited articles list\", function () {\n    const responseData = pm.response.json();\n    pm.expect(responseData).to.have.property(\"articles\");\n    \n    const targetSlug = pm.collectionVariables.get(\"likedArticleSlug\");\n    const foundArticle = responseData.articles.find(a => a.slug === targetSlug);\n\n    pm.expect(foundArticle).to.not.be.undefined;\n    pm.expect(foundArticle.favorited).to.be.true;\n    pm.expect(foundArticle.favoritesCount).to.eql(1);\n});"
+                      "pm.test(\"Status code is 200 OK\", function () {\n    pm.response.to.have.status(200);\n});\n\npm.test(\"Article appears in filtered favorited articles list\", function () {\n    const responseData = pm.response.json();\n    pm.expect(responseData).to.have.property(\"articles\");\n    \n    const targetSlug = pm.environment.get(\"likedArticleSlug\");\n    const foundArticle = responseData.articles.find(a => a.slug === targetSlug);\n\n    pm.expect(foundArticle).to.not.be.undefined;\n    pm.expect(foundArticle.favorited).to.be.true;\n    pm.expect(foundArticle.favoritesCount).to.eql(1);\n});"
                     ]
                   }
                 }
@@ -4296,15 +4226,6 @@
                 },
                 "method": "GET",
                 "header": [],
-                "body": {
-                  "mode": "raw",
-                  "raw": "",
-                  "options": {
-                    "raw": {
-                      "language": "json"
-                    }
-                  }
-                },
                 "url": {
                   "raw": "{{baseUrl}}/articles?favorited={{readerUsername}}",
                   "host": [
@@ -4396,7 +4317,7 @@
                   "script": {
                     "type": "text/javascript",
                     "exec": [
-                      "pm.test(\"Status code is 200 OK\", function () {\n    pm.response.to.have.status(200);\n});\n\npm.test(\"Article no longer appears in filtered favorited list\", function () {\n    const responseData = pm.response.json();\n    const targetSlug = pm.collectionVariables.get(\"likedArticleSlug\");\n    const foundArticle = responseData.articles.find(a => a.slug === targetSlug);\n\n    pm.expect(foundArticle).to.be.undefined;\n});"
+                      "pm.test(\"Status code is 200 OK\", function () {\n    pm.response.to.have.status(200);\n});\n\npm.test(\"Article no longer appears in filtered favorited list\", function () {\n    const responseData = pm.response.json();\n    const targetSlug = pm.environment.get(\"likedArticleSlug\");\n    const foundArticle = responseData.articles.find(a => a.slug === targetSlug);\n\n    pm.expect(foundArticle).to.be.undefined;\n});"
                     ]
                   }
                 }
@@ -4414,15 +4335,6 @@
                 },
                 "method": "GET",
                 "header": [],
-                "body": {
-                  "mode": "raw",
-                  "raw": "",
-                  "options": {
-                    "raw": {
-                      "language": "json"
-                    }
-                  }
-                },
                 "url": {
                   "raw": "{{baseUrl}}/articles?favorited={{readerUsername}}",
                   "host": [
@@ -4508,208 +4420,6 @@
           ]
         }
       ]
-    }
-  ],
-  "variable": [
-    {
-      "key": "userToken",
-      "value": ""
-    },
-    {
-      "key": "dynamicUsername",
-      "value": ""
-    },
-    {
-      "key": "dynamicEmail",
-      "value": ""
-    },
-    {
-      "key": "dynamicBio",
-      "value": ""
-    },
-    {
-      "key": "dynamicImage",
-      "value": ""
-    },
-    {
-      "key": "initialTitle",
-      "value": ""
-    },
-    {
-      "key": "initialDescription",
-      "value": ""
-    },
-    {
-      "key": "initialBody",
-      "value": ""
-    },
-    {
-      "key": "articleSlug",
-      "value": ""
-    },
-    {
-      "key": "newTitle",
-      "value": ""
-    },
-    {
-      "key": "updatedSlug",
-      "value": ""
-    },
-    {
-      "key": "commentId",
-      "value": ""
-    },
-    {
-      "key": "articleComment",
-      "value": ""
-    },
-    {
-      "key": "authorToken",
-      "value": ""
-    },
-    {
-      "key": "authorUsername",
-      "value": ""
-    },
-    {
-      "key": "readerToken",
-      "value": ""
-    },
-    {
-      "key": "feedArticleSlug",
-      "value": ""
-    },
-    {
-      "key": "authorEmail",
-      "value": ""
-    },
-    {
-      "key": "readerUsername",
-      "value": ""
-    },
-    {
-      "key": "readerEmail",
-      "value": ""
-    },
-    {
-      "key": "feedArticleTitle",
-      "value": ""
-    },
-    {
-      "key": "feedArticleDescription",
-      "value": ""
-    },
-    {
-      "key": "feedArticleBody",
-      "value": ""
-    },
-    {
-      "key": "likedArticleTitle",
-      "value": ""
-    },
-    {
-      "key": "likedArticleDescription",
-      "value": ""
-    },
-    {
-      "key": "likedArticleBody",
-      "value": ""
-    },
-    {
-      "key": "likedArticleSlug",
-      "value": ""
-    },
-    {
-      "key": "newUsername",
-      "value": ""
-    },
-    {
-      "key": "newEmail",
-      "value": ""
-    },
-    {
-      "key": "newUserToken",
-      "value": ""
-    },
-    {
-      "key": "newUserBio",
-      "value": ""
-    },
-    {
-      "key": "newUserImage",
-      "value": ""
-    },
-    {
-      "key": "title",
-      "value": ""
-    },
-    {
-      "key": "description",
-      "value": ""
-    },
-    {
-      "key": "body",
-      "value": ""
-    },
-    {
-      "key": "slug",
-      "value": ""
-    },
-    {
-      "key": "updatedTitle",
-      "value": ""
-    },
-    {
-      "key": "updatedTitleSlug",
-      "value": ""
-    },
-    {
-      "key": "newArticleComment",
-      "value": ""
-    },
-    {
-      "key": "articleCommentId",
-      "value": ""
-    },
-    {
-      "key": "edgecaseUsername",
-      "value": ""
-    },
-    {
-      "key": "edgecaseEmail",
-      "value": ""
-    },
-    {
-      "key": "InvalidEdgecaseEmail",
-      "value": ""
-    },
-    {
-      "key": "existingEmail",
-      "value": ""
-    },
-    {
-      "key": "existingArticleTitle",
-      "value": ""
-    },
-    {
-      "key": "invalidSlug",
-      "value": ""
-    },
-    {
-      "key": "baselineFavoritesCount",
-      "value": ""
-    },
-    {
-      "key": "edgeCaseComment",
-      "value": ""
-    },
-    {
-      "key": "baselineFollowCount",
-      "value": ""
-    },
-    {
-      "key": "invalidUserName",
-      "value": ""
     }
   ]
 }
