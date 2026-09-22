@@ -51,7 +51,7 @@ jobs:
 
       # Block until both ports accept connections (fails after 60s)
       - name: Wait for Server
-        run: npx wait-on tcp:3000 tcp:3001 --timeout 60000
+        run: npx wait-on http://localhost:3000 http://localhost:3001/api/tags --timeout 60000
 
       - name: Execute Postman API Tests (Newman)
         run: |
