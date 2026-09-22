@@ -50,8 +50,8 @@ jobs:
       - name: Execute Postman API Tests (Newman)
         run: |
           mkdir -p reports
-          newman run postman/conduitCollection.json \
-            -e postman/conduitEnvironment.json \
+          newman run postman/collection.json \
+            -e postman/environment.json \
             -r cli,htmlextra \
             --reporter-htmlextra-export ./reports/postman-report.html \
             --insecure
