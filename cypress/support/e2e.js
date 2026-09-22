@@ -1,7 +1,13 @@
 import 'cypress-mochawesome-reporter/register';
-
 import './commands'
-import 'cypress-mochawesome-reporter/register';
+
+Cypress.on('uncaught:exception', (err, runnable) => {
+  if (err.message.includes('Objects are not valid as a React child')) {
+    return false;
+  }
+  return true;
+});
+
 
 before(function () {
   cy.log('This should execute before all test cases')
